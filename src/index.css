@@ -1,95 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Ma+Shan+Zheng&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 80 60% 97%;
+    --foreground: 150 30% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 60 40% 98%;
+    --card-foreground: 150 30% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 60 40% 98%;
+    --popover-foreground: 150 30% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 142 55% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 45 90% 60%;
+    --secondary-foreground: 30 50% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 100 20% 92%;
+    --muted-foreground: 150 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 200 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 100 20% 85%;
+    --input: 100 20% 85%;
+    --ring: 142 55% 45%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Custom SeedVerse tokens */
+    --earth: 30 50% 35%;
+    --earth-light: 35 40% 75%;
+    --sky: 200 80% 70%;
+    --sky-light: 200 60% 92%;
+    --sun: 45 95% 55%;
+    --sun-light: 48 90% 85%;
+    --petal: 340 70% 65%;
+    --petal-light: 340 60% 92%;
+    --leaf: 142 55% 45%;
+    --leaf-light: 140 40% 90%;
+    --fruit: 15 85% 55%;
+    --fruit-light: 15 70% 90%;
+
+    --font-display: 'Ma Shan Zheng', cursive;
+    --font-body: 'Nunito', sans-serif;
+
+    --shadow-card: 0 4px 20px -4px hsl(142 55% 45% / 0.15);
+    --shadow-float: 0 8px 30px -6px hsl(142 55% 45% / 0.25);
+    --gradient-nature: linear-gradient(135deg, hsl(142 55% 45%), hsl(170 60% 50%));
+    --gradient-sun: linear-gradient(135deg, hsl(45 95% 55%), hsl(30 90% 55%));
+    --gradient-sky: linear-gradient(180deg, hsl(200 80% 70%), hsl(200 60% 92%));
+    --gradient-petal: linear-gradient(135deg, hsl(340 70% 65%), hsl(300 60% 65%));
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -98,8 +75,80 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-body);
+    font-weight: 800;
   }
 }
+
+@layer components {
+  .text-display {
+    font-family: var(--font-display);
+  }
+  .card-nature {
+    @apply rounded-2xl border-0;
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-card);
+  }
+  .btn-nature {
+    @apply rounded-full font-bold px-6 py-3;
+    background: var(--gradient-nature);
+    color: hsl(var(--primary-foreground));
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-nature:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
+  }
+  .btn-sun {
+    @apply rounded-full font-bold px-6 py-3;
+    background: var(--gradient-sun);
+    color: hsl(var(--secondary-foreground));
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-sun:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
+  }
+  .glass-card {
+    @apply rounded-3xl backdrop-blur-md;
+    background: hsl(0 0% 100% / 0.7);
+    box-shadow: var(--shadow-card);
+    border: 1px solid hsl(0 0% 100% / 0.5);
+  }
+  .gradient-nature-bg {
+    background: var(--gradient-nature);
+  }
+  .gradient-sky-bg {
+    background: var(--gradient-sky);
+  }
+  .badge-glow {
+    @apply rounded-full px-3 py-1 text-xs font-bold;
+    background: var(--gradient-sun);
+    color: hsl(var(--secondary-foreground));
+    box-shadow: 0 0 12px hsl(45 95% 55% / 0.4);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+@keyframes sprout {
+  0% { transform: scaleY(0); transform-origin: bottom; }
+  100% { transform: scaleY(1); transform-origin: bottom; }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-wiggle { animation: wiggle 1s ease-in-out infinite; }
+.animate-sprout { animation: sprout 0.8s ease-out forwards; }

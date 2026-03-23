@@ -14,6 +14,12 @@ const HomePage = () => {
   const { collectedSeeds, getAllPlants } = useSeedVerse();
   const allPlants = getAllPlants();
 
+  const stats = [
+    { value: collectedSeeds.length, label: '种子收集', color: 'text-leaf', filter: 'collected' },
+    { value: allPlants.length, label: '图鉴总数', color: 'text-sun', filter: 'total' },
+    { value: allPlants.length - collectedSeeds.length, label: '等待探索', color: 'text-petal', filter: 'undiscovered' },
+  ];
+
   return (
     <div className="min-h-screen pb-24">
       {/* Hero */}
@@ -31,18 +37,16 @@ const HomePage = () => {
           <h1 className="text-4xl font-display text-foreground mb-2">🌱 SeedVerse</h1>
           <p className="text-foreground/70 font-semibold text-sm">种子宇宙 · 探索奇妙植物世界</p>
           <div className="flex justify-center gap-6 mt-6">
-            <div className="glass-card px-4 py-2 text-center">
-              <p className="text-2xl font-bold text-leaf">{collectedSeeds.length}</p>
-              <p className="text-[10px] text-muted-foreground font-semibold">种子收集</p>
-            </div>
-            <div className="glass-card px-4 py-2 text-center">
-              <p className="text-2xl font-bold text-sun">{allPlants.length}</p>
-              <p className="text-[10px] text-muted-foreground font-semibold">图鉴总数</p>
-            </div>
-            <div className="glass-card px-4 py-2 text-center">
-              <p className="text-2xl font-bold text-petal">{allPlants.length - collectedSeeds.length}</p>
-              <p className="text-[10px] text-muted-foreground font-semibold">等待探索</p>
-            </div>
+            {stats.map(s => (
+              <Link
+                key={s.filter}
+                to={`/atlas?filter=${s.filter}`}
+                className="glass-card px-4 py-2 text-center hover:scale-105 transition-transform cursor-pointer"
+              >
+                <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">{s.label}</p>
+              </Link>
+            ))}
           </div>
         </motion.div>
       </div>

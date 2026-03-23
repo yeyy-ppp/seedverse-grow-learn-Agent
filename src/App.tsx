@@ -11,6 +11,7 @@ import GardenPage from "./pages/GardenPage";
 import GamesPage from "./pages/GamesPage";
 import ProfilePage from "./pages/ProfilePage";
 import PlantDetailPage from "./pages/PlantDetailPage";
+import KnowledgePage from "./pages/KnowledgePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/identify" element={<IdentifyPage />} />
               <Route path="/garden" element={<GardenPage />} />
               <Route path="/games" element={<GamesPage />} />
+              <Route path="/knowledge" element={<KnowledgePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/plant/:id" element={<PlantDetailPage />} />
               <Route path="*" element={<NotFound />} />

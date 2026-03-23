@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
-import { achievements, plants } from '@/data/plants';
+import { achievements } from '@/data/plants';
 import { Trophy, BookOpen, Gamepad2, Sprout } from 'lucide-react';
 
 const ProfilePage = () => {
-  const { collectedSeeds, quizCount, gameCount } = useSeedVerse();
+  const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed } = useSeedVerse();
+  const allPlants = getAllPlants();
 
   const stats = [
     { icon: Sprout, label: '种子收集', value: collectedSeeds.length, color: 'text-leaf' },
@@ -23,15 +24,12 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen pb-24">
       <div className="bg-gradient-to-br from-petal-light to-sky-light pt-10 pb-14 px-4 rounded-b-[3rem] text-center">
-        <div className="w-20 h-20 rounded-full gradient-nature-bg flex items-center justify-center mx-auto mb-3 text-4xl">
-          🧒
-        </div>
+        <div className="w-20 h-20 rounded-full gradient-nature-bg flex items-center justify-center mx-auto mb-3 text-4xl">🧒</div>
         <h1 className="text-xl font-bold text-foreground">小小植物学家</h1>
         <p className="text-xs text-muted-foreground">探索植物世界的旅程才刚开始</p>
       </div>
 
       <div className="px-4 -mt-8 space-y-4">
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
           {stats.map(s => (
             <div key={s.label} className="card-nature p-3 text-center">
@@ -42,7 +40,6 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        {/* Achievements */}
         <div className="card-nature p-4 space-y-3">
           <h3 className="font-bold text-foreground flex items-center gap-2">
             <Trophy size={16} className="text-sun" /> 成就徽章
@@ -51,11 +48,7 @@ const ProfilePage = () => {
             {achievements.map(a => {
               const unlocked = checkAchievement(a);
               return (
-                <motion.div
-                  key={a.id}
-                  whileHover={{ scale: 1.02 }}
-                  className={`rounded-xl p-3 text-center ${unlocked ? 'bg-sun-light' : 'bg-muted opacity-60'}`}
-                >
+                <motion.div key={a.id} whileHover={{ scale: 1.02 }} className={`rounded-xl p-3 text-center ${unlocked ? 'bg-sun-light' : 'bg-muted opacity-60'}`}>
                   <span className="text-2xl block">{unlocked ? a.emoji : '🔒'}</span>
                   <p className="text-xs font-bold text-foreground mt-1">{a.name}</p>
                   <p className="text-[9px] text-muted-foreground">{a.description}</p>
@@ -65,19 +58,13 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Collection */}
         <div className="card-nature p-4 space-y-3">
-          <h3 className="font-bold text-foreground">🌱 收集图鉴</h3>
+          <h3 className="font-bold text-foreground">🌱 收集图鉴 ({collectedSeeds.length}/{allPlants.length})</h3>
           <div className="grid grid-cols-6 gap-2">
-            {plants.map(p => {
-              const collected = collectedSeeds.some(s => s.plantId === p.id);
+            {allPlants.map(p => {
+              const collected = getSeed(p.id);
               return (
-                <div
-                  key={p.id}
-                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${
-                    collected ? 'bg-leaf-light' : 'bg-muted'
-                  }`}
-                >
+                <div key={p.id} className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${collected ? 'bg-leaf-light' : 'bg-muted'}`}>
                   {collected ? p.emoji : '❓'}
                 </div>
               );

@@ -12,6 +12,7 @@ import GamesPage from "./pages/GamesPage";
 import ProfilePage from "./pages/ProfilePage";
 import PlantDetailPage from "./pages/PlantDetailPage";
 import KnowledgePage from "./pages/KnowledgePage";
+import SeedAtlasPage from "./pages/SeedAtlasPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/knowledge" element={<KnowledgePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/plant/:id" element={<PlantDetailPage />} />
+              <Route path="/atlas" element={<SeedAtlasPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />

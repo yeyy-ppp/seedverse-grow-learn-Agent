@@ -19,8 +19,12 @@ export interface CustomPlant {
   stages: { name: string; emoji: string; description: string; unlockContent: string }[];
 }
 
+interface SeedCardWithNew extends SeedCard {
+  isNew?: boolean;
+}
+
 interface SeedVerseState {
-  collectedSeeds: SeedCard[];
+  collectedSeeds: SeedCardWithNew[];
   customPlants: CustomPlant[];
   quizCount: number;
   gameCount: number;
@@ -29,9 +33,10 @@ interface SeedVerseState {
   growSeed: (plantId: string) => void;
   incrementQuiz: () => void;
   incrementGame: () => void;
-  getSeed: (plantId: string) => SeedCard | undefined;
+  getSeed: (plantId: string) => SeedCardWithNew | undefined;
   getAllPlants: () => Plant[];
   getPlantById: (id: string) => Plant | CustomPlant | undefined;
+  markSeedViewed: (plantId: string) => void;
 }
 
 const SeedVerseContext = createContext<SeedVerseState | null>(null);
@@ -43,7 +48,7 @@ export const useSeedVerse = () => {
 };
 
 export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
-  const [collectedSeeds, setCollectedSeeds] = useState<SeedCard[]>([]);
+  const [collectedSeeds, setCollectedSeeds] = useState<SeedCardWithNew[]>([]);
   const [customPlants, setCustomPlants] = useState<CustomPlant[]>([]);
   const [quizCount, setQuizCount] = useState(0);
   const [gameCount, setGameCount] = useState(0);
@@ -61,7 +66,6 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
       if (prev.find(p => p.id === plant.id)) return prev;
       return [...prev, plant];
     });
-    // Also collect the seed automatically
     setCollectedSeeds(prev => {
       if (prev.find(s => s.plantId === plant.id)) return prev;
       return [...prev, {
@@ -69,6 +73,7 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
         collectedAt: new Date().toISOString(),
         currentStage: 0,
         unlocked: plant.stages.map((_, i) => i === 0),
+        isNew: true,
       }];
     });
   }, []);
@@ -83,6 +88,7 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
         collectedAt: new Date().toISOString(),
         currentStage: 0,
         unlocked: plant.stages.map((_, i) => i === 0),
+        isNew: true,
       }];
     });
   }, [customPlants]);
@@ -99,6 +105,12 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, [customPlants]);
 
+  const markSeedViewed = useCallback((plantId: string) => {
+    setCollectedSeeds(prev => prev.map(s =>
+      s.plantId === plantId ? { ...s, isNew: false } : s
+    ));
+  }, []);
+
   const incrementQuiz = useCallback(() => setQuizCount(c => c + 1), []);
   const incrementGame = useCallback(() => setGameCount(c => c + 1), []);
   const getSeed = useCallback((plantId: string) => collectedSeeds.find(s => s.plantId === plantId), [collectedSeeds]);
@@ -107,7 +119,7 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
     <SeedVerseContext.Provider value={{
       collectedSeeds, customPlants, quizCount, gameCount,
       collectSeed, addCustomPlant, growSeed, incrementQuiz, incrementGame, getSeed,
-      getAllPlants, getPlantById,
+      getAllPlants, getPlantById, markSeedViewed,
     }}>
       {children}
     </SeedVerseContext.Provider>

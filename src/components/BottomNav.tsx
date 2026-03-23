@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Camera, Sprout, BookOpen, User } from 'lucide-react';
+import { Home, Camera, Sprout, BookOpen, Gamepad2, User } from 'lucide-react';
 
 const navItems = [
   { path: '/', icon: Home, label: '首页' },
   { path: '/identify', icon: Camera, label: '识别' },
   { path: '/garden', icon: Sprout, label: '花园' },
+  { path: '/games', icon: Gamepad2, label: '游戏' },
   { path: '/knowledge', icon: BookOpen, label: '知识' },
   { path: '/profile', icon: User, label: '我的' },
 ];

@@ -1,14 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { plants } from '@/data/plants';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
+import { Plant } from '@/data/plants';
 import GrowthStage from '@/components/GrowthStage';
 import { motion } from 'framer-motion';
 
 const PlantDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const plant = plants.find(p => p.id === id);
-  const { getSeed, collectSeed, growSeed } = useSeedVerse();
+  const { getSeed, collectSeed, growSeed, getPlantById } = useSeedVerse();
+  const plant = getPlantById(id || '');
 
   if (!plant) {
     return (
@@ -37,15 +37,13 @@ const PlantDetailPage = () => {
         {!seed ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card-nature p-6 text-center space-y-3">
             <p className="text-sm text-muted-foreground">你还没有收集这颗种子</p>
-            <button onClick={() => collectSeed(plant.id)} className="btn-nature text-sm">
-              🌱 收集种子
-            </button>
+            <button onClick={() => collectSeed(plant.id)} className="btn-nature text-sm">🌱 收集种子</button>
           </motion.div>
         ) : (
           <div className="card-nature p-4">
             <h3 className="font-bold text-foreground mb-3">🌿 生命周期</h3>
             <GrowthStage
-              plant={plant}
+              plant={plant as Plant}
               currentStage={seed.currentStage}
               unlocked={seed.unlocked}
               onGrow={() => growSeed(plant.id)}
@@ -53,7 +51,6 @@ const PlantDetailPage = () => {
           </div>
         )}
 
-        {/* Scene */}
         <div className="card-nature p-4 space-y-2 bg-gradient-to-br from-sky-light to-leaf-light">
           <h3 className="font-bold text-foreground">🏞️ {plant.scene.name}</h3>
           <p className="text-xs text-muted-foreground leading-relaxed">{plant.scene.description}</p>

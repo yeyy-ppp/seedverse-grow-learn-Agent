@@ -1,16 +1,24 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
-import { achievements } from '@/data/plants';
-import { Trophy, BookOpen, Gamepad2, Sprout } from 'lucide-react';
+import { achievements, Plant } from '@/data/plants';
+import { Trophy, BookOpen, Gamepad2, Sprout, ArrowLeft, ChevronRight } from 'lucide-react';
+import PlantDetailView from '@/components/identify/PlantDetailView';
+
+type ReviewMode = null | 'seeds' | 'quiz' | 'games';
 
 const ProfilePage = () => {
-  const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed } = useSeedVerse();
+  const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed, getPlantById } = useSeedVerse();
   const allPlants = getAllPlants();
+  const navigate = useNavigate();
+  const [reviewMode, setReviewMode] = useState<ReviewMode>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   const stats = [
-    { icon: Sprout, label: '种子收集', value: collectedSeeds.length, color: 'text-leaf' },
-    { icon: BookOpen, label: '问答完成', value: quizCount, color: 'text-sky' },
-    { icon: Gamepad2, label: '游戏完成', value: gameCount, color: 'text-sun' },
+    { icon: Sprout, label: '种子收集', value: collectedSeeds.length, color: 'text-leaf', mode: 'seeds' as const },
+    { icon: BookOpen, label: '问答完成', value: quizCount, color: 'text-sky', mode: 'quiz' as const },
+    { icon: Gamepad2, label: '游戏完成', value: gameCount, color: 'text-sun', mode: 'games' as const },
   ];
 
   const checkAchievement = (a: typeof achievements[0]) => {
@@ -20,6 +28,109 @@ const ProfilePage = () => {
       case 'game': return gameCount >= a.requirement;
     }
   };
+
+  if (selectedPlant) {
+    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} />;
+  }
+
+  if (reviewMode === 'seeds') {
+    const collectedPlants = collectedSeeds.map(s => getPlantById(s.plantId)).filter(Boolean);
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="bg-gradient-to-br from-leaf-light to-sky-light pt-10 pb-14 px-4 rounded-b-[3rem]">
+          <button onClick={() => setReviewMode(null)} className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
+            <ArrowLeft size={16} /> 返回
+          </button>
+          <h1 className="text-2xl font-bold text-foreground text-center">🌱 种子收集</h1>
+          <p className="text-sm text-muted-foreground text-center">已收集 {collectedSeeds.length} 颗种子</p>
+        </div>
+        <div className="px-4 -mt-6 space-y-3">
+          {collectedPlants.map(plant => plant && (
+            <motion.div
+              key={plant.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedPlant(plant as Plant)}
+              className="card-nature p-4 flex items-center gap-3 cursor-pointer"
+            >
+              <span className="text-3xl">{plant.emoji}</span>
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground text-sm">{plant.name}</h3>
+                <p className="text-[10px] text-muted-foreground">{plant.category} · {plant.family}</p>
+              </div>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </motion.div>
+          ))}
+          {collectedSeeds.length === 0 && (
+            <div className="card-nature p-8 text-center">
+              <p className="text-sm text-muted-foreground">还没有收集到种子，去识别或游戏中获取吧！</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (reviewMode === 'quiz') {
+    const collectedPlants = collectedSeeds.map(s => getPlantById(s.plantId)).filter(Boolean);
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="bg-gradient-to-br from-sky-light to-petal-light pt-10 pb-14 px-4 rounded-b-[3rem]">
+          <button onClick={() => setReviewMode(null)} className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
+            <ArrowLeft size={16} /> 返回
+          </button>
+          <h1 className="text-2xl font-bold text-foreground text-center">📝 问答回顾</h1>
+          <p className="text-sm text-muted-foreground text-center">已完成 {quizCount} 次问答</p>
+        </div>
+        <div className="px-4 -mt-6 space-y-3">
+          <p className="text-xs text-muted-foreground">点击植物可进入查看问答内容：</p>
+          {collectedPlants.map(plant => plant && (
+            <motion.div
+              key={plant.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedPlant(plant as Plant)}
+              className="card-nature p-4 flex items-center gap-3 cursor-pointer"
+            >
+              <span className="text-3xl">{plant.emoji}</span>
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground text-sm">{plant.name}</h3>
+                <p className="text-[10px] text-muted-foreground">{plant.quiz.length} 道问答题</p>
+              </div>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </motion.div>
+          ))}
+          {collectedSeeds.length === 0 && (
+            <div className="card-nature p-8 text-center">
+              <p className="text-sm text-muted-foreground">还没有完成任何问答</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (reviewMode === 'games') {
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="bg-gradient-to-br from-sun-light to-petal-light pt-10 pb-14 px-4 rounded-b-[3rem]">
+          <button onClick={() => setReviewMode(null)} className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
+            <ArrowLeft size={16} /> 返回
+          </button>
+          <h1 className="text-2xl font-bold text-foreground text-center">🎮 游戏记录</h1>
+          <p className="text-sm text-muted-foreground text-center">已完成 {gameCount} 个游戏</p>
+        </div>
+        <div className="px-4 -mt-6 space-y-3">
+          <div className="card-nature p-4 text-center space-y-3">
+            <p className="text-4xl">🏆</p>
+            <p className="text-2xl font-bold text-sun">{gameCount}</p>
+            <p className="text-sm text-muted-foreground">累计完成游戏次数</p>
+            <button onClick={() => navigate('/games')} className="btn-sun text-sm">
+              去玩更多游戏
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24">
@@ -32,11 +143,17 @@ const ProfilePage = () => {
       <div className="px-4 -mt-8 space-y-4">
         <div className="grid grid-cols-3 gap-2">
           {stats.map(s => (
-            <div key={s.label} className="card-nature p-3 text-center">
+            <motion.button
+              key={s.label}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setReviewMode(s.mode)}
+              className="card-nature p-3 text-center cursor-pointer"
+            >
               <s.icon size={20} className={`mx-auto ${s.color}`} />
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
               <p className="text-[9px] text-muted-foreground font-semibold">{s.label}</p>
-            </div>
+              <p className="text-[8px] text-primary mt-0.5">点击查看 →</p>
+            </motion.button>
           ))}
         </div>
 
@@ -64,9 +181,14 @@ const ProfilePage = () => {
             {allPlants.map(p => {
               const collected = getSeed(p.id);
               return (
-                <div key={p.id} className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${collected ? 'bg-leaf-light' : 'bg-muted'}`}>
+                <motion.button
+                  key={p.id}
+                  whileTap={collected ? { scale: 0.9 } : undefined}
+                  onClick={() => collected && setSelectedPlant(p as Plant)}
+                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${collected ? 'bg-leaf-light cursor-pointer' : 'bg-muted cursor-default'}`}
+                >
                   {collected ? p.emoji : '❓'}
-                </div>
+                </motion.button>
               );
             })}
           </div>

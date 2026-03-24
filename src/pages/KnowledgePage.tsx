@@ -1,18 +1,18 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Flower2, TreePine, Leaf, Cherry, ChevronRight, Sparkles } from 'lucide-react';
+import { Flower2, TreePine, Leaf, Cherry, ChevronRight, Sparkles } from 'lucide-react';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
 import PlantDetailView from '@/components/identify/PlantDetailView';
 
-const categories = [
-  { label: '全部', icon: Sparkles, filter: '' },
-  { label: '草本植物', icon: Flower2, filter: '草本植物' },
-  { label: '乔木', icon: TreePine, filter: '乔木' },
-  { label: '水生植物', icon: Leaf, filter: '水生植物' },
-  { label: '水果', icon: Cherry, filter: '水果' },
-  { label: '蔬菜', icon: Leaf, filter: '蔬菜' },
-];
+// Dynamic categories built from actual plant data
+const categoryMeta: Record<string, { icon: typeof Flower2 }> = {
+  '草本植物': { icon: Flower2 },
+  '乔木': { icon: TreePine },
+  '水生植物': { icon: Leaf },
+  '水果': { icon: Cherry },
+  '蔬菜': { icon: Leaf },
+};
 
 type Tab = 'stories' | 'poems' | 'quiz' | 'scenes';
 
@@ -23,6 +23,19 @@ const KnowledgePage = () => {
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   const allPlants = getAllPlants();
+
+  // Build categories dynamically from all plants (including custom)
+  const categories = useMemo(() => {
+    const catSet = new Set<string>();
+    allPlants.forEach(p => { if (p.category) catSet.add(p.category); });
+    const cats = [{ label: '全部', icon: Sparkles, filter: '' }];
+    catSet.forEach(cat => {
+      const meta = categoryMeta[cat];
+      cats.push({ label: cat, icon: meta?.icon || Leaf, filter: cat });
+    });
+    return cats;
+  }, [allPlants]);
+
   const filtered = activeCategory
     ? allPlants.filter(p => p.category === activeCategory)
     : allPlants;
@@ -54,7 +67,7 @@ const KnowledgePage = () => {
       </div>
 
       <div className="px-4 -mt-6 space-y-4">
-        {/* Category filter */}
+        {/* Category filter - dynamically built */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
           {categories.map(c => (
             <button
@@ -114,6 +127,7 @@ const KnowledgePage = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-foreground text-sm">{plant.name}</h3>
+                        <span className="text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-bold">{plant.category}</span>
                         {getSeed(plant.id) && (
                           <span className="text-[8px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">已收集</span>
                         )}

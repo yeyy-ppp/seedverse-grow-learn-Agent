@@ -23,11 +23,21 @@ interface SeedCardWithNew extends SeedCard {
   isNew?: boolean;
 }
 
+export interface GardenPlot {
+  id: number;
+  plantId: string | null;
+  growthProgress: number;
+  waterLevel: number;
+  fertilized: boolean;
+  lastWatered: number;
+}
+
 interface SeedVerseState {
   collectedSeeds: SeedCardWithNew[];
   customPlants: CustomPlant[];
   quizCount: number;
   gameCount: number;
+  gardenPlots: GardenPlot[];
   collectSeed: (plantId: string) => void;
   addCustomPlant: (plant: CustomPlant) => void;
   growSeed: (plantId: string) => void;
@@ -37,6 +47,11 @@ interface SeedVerseState {
   getAllPlants: () => Plant[];
   getPlantById: (id: string) => Plant | CustomPlant | undefined;
   markSeedViewed: (plantId: string) => void;
+  setGardenPlots: React.Dispatch<React.SetStateAction<GardenPlot[]>>;
+  waterPlot: (plotId: number) => void;
+  fertilizePlot: (plotId: number) => void;
+  plantSeedInPlot: (plotId: number, plantId: string) => void;
+  removePlotPlant: (plotId: number) => void;
 }
 
 const SeedVerseContext = createContext<SeedVerseState | null>(null);
@@ -47,11 +62,22 @@ export const useSeedVerse = () => {
   return ctx;
 };
 
+const createInitialPlots = (): GardenPlot[] =>
+  Array.from({ length: 6 }, (_, i) => ({
+    id: i,
+    plantId: null,
+    growthProgress: 0,
+    waterLevel: 50,
+    fertilized: false,
+    lastWatered: Date.now(),
+  }));
+
 export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
   const [collectedSeeds, setCollectedSeeds] = useState<SeedCardWithNew[]>([]);
   const [customPlants, setCustomPlants] = useState<CustomPlant[]>([]);
   const [quizCount, setQuizCount] = useState(0);
   const [gameCount, setGameCount] = useState(0);
+  const [gardenPlots, setGardenPlots] = useState<GardenPlot[]>(createInitialPlots);
 
   const getAllPlants = useCallback((): Plant[] => {
     return [...plants, ...customPlants as Plant[]];
@@ -111,15 +137,45 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
     ));
   }, []);
 
+  const waterPlot = useCallback((plotId: number) => {
+    setGardenPlots(prev => prev.map(p =>
+      p.id === plotId ? { ...p, waterLevel: Math.min(100, p.waterLevel + 30), lastWatered: Date.now() } : p
+    ));
+  }, []);
+
+  const fertilizePlot = useCallback((plotId: number) => {
+    setGardenPlots(prev => prev.map(p =>
+      p.id === plotId ? { ...p, fertilized: true } : p
+    ));
+    setTimeout(() => {
+      setGardenPlots(prev => prev.map(p =>
+        p.id === plotId ? { ...p, fertilized: false } : p
+      ));
+    }, 30000);
+  }, []);
+
+  const plantSeedInPlot = useCallback((plotId: number, plantId: string) => {
+    setGardenPlots(prev => prev.map(p =>
+      p.id === plotId ? { ...p, plantId, growthProgress: 0, waterLevel: 60, fertilized: false } : p
+    ));
+  }, []);
+
+  const removePlotPlant = useCallback((plotId: number) => {
+    setGardenPlots(prev => prev.map(p =>
+      p.id === plotId ? { ...p, plantId: null, growthProgress: 0, waterLevel: 50, fertilized: false } : p
+    ));
+  }, []);
+
   const incrementQuiz = useCallback(() => setQuizCount(c => c + 1), []);
   const incrementGame = useCallback(() => setGameCount(c => c + 1), []);
   const getSeed = useCallback((plantId: string) => collectedSeeds.find(s => s.plantId === plantId), [collectedSeeds]);
 
   return (
     <SeedVerseContext.Provider value={{
-      collectedSeeds, customPlants, quizCount, gameCount,
+      collectedSeeds, customPlants, quizCount, gameCount, gardenPlots,
       collectSeed, addCustomPlant, growSeed, incrementQuiz, incrementGame, getSeed,
       getAllPlants, getPlantById, markSeedViewed,
+      setGardenPlots, waterPlot, fertilizePlot, plantSeedInPlot, removePlotPlant,
     }}>
       {children}
     </SeedVerseContext.Provider>

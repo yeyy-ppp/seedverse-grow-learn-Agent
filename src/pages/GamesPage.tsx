@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { Puzzle, BookOpen, Palette, ArrowLeft, Lock, Unlock } from 'lucide-react';
+import { Puzzle, BookOpen, Palette, ArrowLeft, Lock, Unlock, Brain, Tags, Zap } from 'lucide-react';
 import SlidingPuzzle from '@/components/games/SlidingPuzzle';
 import PlantPoemGame from '@/components/games/PlantPoemGame';
 import MatchGame from '@/components/games/MatchGame';
+import PlantQuizGame from '@/components/games/PlantQuizGame';
+import PlantSortGame from '@/components/games/PlantSortGame';
+import SpeedIdentifyGame from '@/components/games/SpeedIdentifyGame';
 
-type GameType = 'puzzle' | 'poem' | 'match' | null;
+type GameType = 'puzzle' | 'poem' | 'match' | 'quiz' | 'sort' | 'speed' | null;
 
 const GamesPage = () => {
   const [activeGame, setActiveGame] = useState<GameType>(null);
@@ -16,10 +19,15 @@ const GamesPage = () => {
   const allPlants = getAllPlants();
 
   const games = [
-    { type: 'puzzle' as const, icon: Puzzle, name: '场景拼图', desc: '拼出植物的生长场景图片，解锁新种子', color: 'bg-leaf-light text-leaf', needsPlant: true },
-    { type: 'poem' as const, icon: BookOpen, name: '诗词填空', desc: '针对每种植物的相关诗词进行填空', color: 'bg-petal-light text-petal', needsPlant: true },
-    { type: 'match' as const, icon: Palette, name: '配对游戏', desc: '找到对应的植物', color: 'bg-sun-light text-sun', needsPlant: false },
+    { type: 'puzzle' as const, icon: Puzzle, name: '场景拼图', desc: '拼出植物场景图片，解锁新种子', color: 'bg-leaf-light text-leaf', needsPlant: true },
+    { type: 'poem' as const, icon: BookOpen, name: '诗词填空', desc: '针对每种植物进行诗词挑战', color: 'bg-petal-light text-petal', needsPlant: true },
+    { type: 'quiz' as const, icon: Brain, name: '知识问答', desc: '回答植物知识问题，答对解锁种子', color: 'bg-sky-light text-sky', needsPlant: true },
+    { type: 'match' as const, icon: Palette, name: '记忆配对', desc: '翻卡片找到对应的植物', color: 'bg-sun-light text-sun', needsPlant: false },
+    { type: 'sort' as const, icon: Tags, name: '分类挑战', desc: '将植物放入正确的分类', color: 'bg-fruit-light text-fruit', needsPlant: false },
+    { type: 'speed' as const, icon: Zap, name: '极速识别', desc: '限时识别植物，速度越快分数越高', color: 'bg-petal-light text-petal', needsPlant: false },
   ];
+
+  const plantSelectGames: GameType[] = ['puzzle', 'poem', 'quiz'];
 
   const renderPlantSelect = (gameType: GameType) => (
     <motion.div key="plant-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -27,7 +35,7 @@ const GamesPage = () => {
         <ArrowLeft size={14} /> 返回游戏列表
       </button>
       <h3 className="font-bold text-foreground mb-3">
-        选择一个植物进行{gameType === 'puzzle' ? '拼图' : '诗词'}挑战
+        选择一个植物进行{gameType === 'puzzle' ? '拼图' : gameType === 'poem' ? '诗词' : '问答'}挑战
       </h3>
       <div className="grid grid-cols-2 gap-3">
         {allPlants.map(plant => {
@@ -74,7 +82,7 @@ const GamesPage = () => {
                   key={g.type}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: i * 0.08 }}
                   onClick={() => setActiveGame(g.type)}
                   className="card-nature p-4 flex items-center gap-4 w-full text-left"
                 >
@@ -91,19 +99,25 @@ const GamesPage = () => {
                 </motion.button>
               ))}
             </motion.div>
-          ) : (activeGame === 'puzzle' || activeGame === 'poem') && !selectedPlant ? (
+          ) : plantSelectGames.includes(activeGame) && !selectedPlant ? (
             renderPlantSelect(activeGame)
           ) : (
             <motion.div key={activeGame} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <button
-                onClick={() => { setSelectedPlant(null); if (activeGame !== 'match') { /* stay on plant select */ } else setActiveGame(null); }}
+                onClick={() => {
+                  setSelectedPlant(null);
+                  if (!plantSelectGames.includes(activeGame)) setActiveGame(null);
+                }}
                 className="text-sm text-muted-foreground mb-3 flex items-center gap-1"
               >
-                <ArrowLeft size={14} /> {activeGame === 'match' ? '返回游戏列表' : '返回选择植物'}
+                <ArrowLeft size={14} /> {plantSelectGames.includes(activeGame) ? '返回选择植物' : '返回游戏列表'}
               </button>
               {activeGame === 'puzzle' && selectedPlant && <SlidingPuzzle plant={selectedPlant} onBack={() => setSelectedPlant(null)} />}
               {activeGame === 'poem' && selectedPlant && <PlantPoemGame plant={selectedPlant} onBack={() => setSelectedPlant(null)} />}
+              {activeGame === 'quiz' && selectedPlant && <PlantQuizGame plant={selectedPlant} onBack={() => setSelectedPlant(null)} />}
               {activeGame === 'match' && <MatchGame />}
+              {activeGame === 'sort' && <PlantSortGame />}
+              {activeGame === 'speed' && <SpeedIdentifyGame />}
             </motion.div>
           )}
         </AnimatePresence>

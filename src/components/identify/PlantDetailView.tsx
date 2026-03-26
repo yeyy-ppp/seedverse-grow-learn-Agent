@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Plant } from '@/data/plants';
 import QuizItem from './QuizItem';
+import PlantDiagramView from './PlantDiagramView';
 
 interface Props {
   plant: Plant;
@@ -22,21 +23,7 @@ const PlantDetailView = ({ plant, onBack }: Props) => {
         </div>
       </div>
       <div className="px-4 -mt-8 space-y-4">
-        <div className="card-nature p-4 space-y-3">
-          <h3 className="font-bold text-foreground flex items-center gap-2">📋 基本信息</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-leaf-light rounded-xl p-2"><span className="font-bold text-leaf">分类：</span>{plant.category}</div>
-            <div className="bg-sky-light rounded-xl p-2"><span className="font-bold text-sky">科属：</span>{plant.family}</div>
-          </div>
-          <div className="bg-sun-light rounded-xl p-3 text-xs">
-            <span className="font-bold text-secondary-foreground">🌍 生长环境：</span>
-            <span className="text-muted-foreground">{plant.environment}</span>
-          </div>
-          <div className="bg-petal-light rounded-xl p-3 text-xs">
-            <span className="font-bold text-petal">✨ 特征：</span>
-            <span className="text-muted-foreground">{plant.features}</span>
-          </div>
-        </div>
+        <PlantDiagramView plant={plant} />
 
         <div className="card-nature p-4 space-y-2">
           <h3 className="font-bold text-foreground">📖 趣味故事</h3>

@@ -41,6 +41,7 @@ const KnowledgePage = () => {
     : allPlants;
 
   const tabs: { key: Tab; label: string; emoji: string }[] = [
+    { key: 'profile', label: '植物档案', emoji: '🌿' },
     { key: 'stories', label: '趣味故事', emoji: '📖' },
     { key: 'poems', label: '诗词典故', emoji: '🎋' },
     { key: 'quiz', label: '知识问答', emoji: '❓' },

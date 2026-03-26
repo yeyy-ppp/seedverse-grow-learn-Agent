@@ -14,7 +14,7 @@ const categoryMeta: Record<string, { icon: typeof Flower2 }> = {
   '蔬菜': { icon: Leaf },
 };
 
-type Tab = 'stories' | 'poems' | 'quiz' | 'scenes';
+type Tab = 'profile' | 'stories' | 'poems' | 'quiz' | 'scenes';
 
 const KnowledgePage = () => {
   const { getAllPlants, collectedSeeds, getSeed } = useSeedVerse();

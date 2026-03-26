@@ -14,7 +14,7 @@ const categoryMeta: Record<string, { icon: typeof Flower2 }> = {
   '蔬菜': { icon: Leaf },
 };
 
-type Tab = 'stories' | 'poems' | 'quiz' | 'scenes';
+type Tab = 'profile' | 'stories' | 'poems' | 'quiz' | 'scenes';
 
 const KnowledgePage = () => {
   const { getAllPlants, collectedSeeds, getSeed } = useSeedVerse();
@@ -41,6 +41,7 @@ const KnowledgePage = () => {
     : allPlants;
 
   const tabs: { key: Tab; label: string; emoji: string }[] = [
+    { key: 'profile', label: '植物档案', emoji: '🌿' },
     { key: 'stories', label: '趣味故事', emoji: '📖' },
     { key: 'poems', label: '诗词典故', emoji: '🎋' },
     { key: 'quiz', label: '知识问答', emoji: '❓' },
@@ -135,6 +136,20 @@ const KnowledgePage = () => {
                           <span className="text-[8px] bg-sun-light text-sun px-1.5 py-0.5 rounded-full font-bold">AI生成</span>
                         )}
                       </div>
+                      {activeTab === 'profile' && (
+                        <div className="space-y-1.5">
+                          <div className="flex flex-wrap gap-1">
+                            <span className="text-[10px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">🌍 {plant.environment}</span>
+                            <span className="text-[10px] bg-sky-light text-sky px-1.5 py-0.5 rounded-full font-bold">🧬 {plant.family}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            <span className="font-bold text-foreground">✨ 形态特征：</span>{plant.features}
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                            <span className="font-bold text-foreground">📚 知识：</span>{plant.knowledge}
+                          </p>
+                        </div>
+                      )}
                       {activeTab === 'stories' && (
                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{plant.story}</p>
                       )}

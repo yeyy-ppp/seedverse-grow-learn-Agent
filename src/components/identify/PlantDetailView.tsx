@@ -1,15 +1,21 @@
+import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Plant } from '@/data/plants';
 import QuizItem from './QuizItem';
 import PlantDiagramView from './PlantDiagramView';
+import SceneColoringGame from '@/components/games/SceneColoringGame';
 
 interface Props {
   plant: Plant;
   onBack: () => void;
+  showAll?: boolean; // When true, show all sections; when false, show only active tab content
+  activeTab?: string; // Which tab section to show
 }
 
-const PlantDetailView = ({ plant, onBack }: Props) => {
+const PlantDetailView = ({ plant, onBack, showAll = true }: Props) => {
+  const [showColoring, setShowColoring] = useState(false);
+
   return (
     <div className="min-h-screen pb-24">
       <div className="gradient-nature-bg pt-10 pb-14 px-4 rounded-b-[3rem]">
@@ -23,34 +29,53 @@ const PlantDetailView = ({ plant, onBack }: Props) => {
         </div>
       </div>
       <div className="px-4 -mt-8 space-y-4">
-        <PlantDiagramView plant={plant} />
+        {showAll && <PlantDiagramView plant={plant} />}
 
-        <div className="card-nature p-4 space-y-2">
-          <h3 className="font-bold text-foreground">📖 趣味故事</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">{plant.story}</p>
-        </div>
+        {showAll && (
+          <div className="card-nature p-4 space-y-2">
+            <h3 className="font-bold text-foreground">📖 趣味故事</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">{plant.story}</p>
+          </div>
+        )}
 
-        <div className="card-nature p-4 space-y-2">
-          <h3 className="font-bold text-foreground">🔬 知识讲解</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">{plant.knowledge}</p>
-        </div>
+        {showAll && (
+          <div className="card-nature p-4 space-y-2">
+            <h3 className="font-bold text-foreground">🔬 知识讲解</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">{plant.knowledge}</p>
+          </div>
+        )}
 
-        <div className="card-nature p-4 space-y-2 bg-gradient-to-br from-petal-light to-sky-light">
-          <h3 className="font-bold text-foreground">🎋 诗词典故</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-display text-base">{plant.poem}</p>
-        </div>
+        {showAll && (
+          <div className="card-nature p-4 space-y-2 bg-gradient-to-br from-petal-light to-sky-light">
+            <h3 className="font-bold text-foreground">🎋 诗词典故</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-display text-base">{plant.poem}</p>
+          </div>
+        )}
 
-        <div className="card-nature p-4 space-y-2">
-          <h3 className="font-bold text-foreground">🏞️ 情境故事 · {plant.scene.name}</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">{plant.scene.description}</p>
-        </div>
+        {showAll && (
+          <div className="card-nature p-4 space-y-2">
+            <h3 className="font-bold text-foreground">🎨 场景绘图 · {plant.scene.name}</h3>
+            {showColoring ? (
+              <SceneColoringGame plant={plant} onBack={() => setShowColoring(false)} />
+            ) : (
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground leading-relaxed">{plant.scene.description}</p>
+                <button onClick={() => setShowColoring(true)} className="btn-nature text-sm">
+                  🎨 开始绘图
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="card-nature p-4 space-y-3">
-          <h3 className="font-bold text-foreground">❓ 互动问答</h3>
-          {plant.quiz.map((q, i) => (
-            <QuizItem key={i} quiz={q} />
-          ))}
-        </div>
+        {showAll && (
+          <div className="card-nature p-4 space-y-3">
+            <h3 className="font-bold text-foreground">❓ 互动问答</h3>
+            {plant.quiz.map((q, i) => (
+              <QuizItem key={i} quiz={q} />
+            ))}
+          </div>
+        )}
 
         <div className="text-center pb-4">
           <Link to={`/plant/${plant.id}`} className="btn-nature inline-block text-sm">

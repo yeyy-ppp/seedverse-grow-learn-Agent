@@ -4,8 +4,8 @@ import { Flower2, TreePine, Leaf, Cherry, ChevronRight, Sparkles } from 'lucide-
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
 import PlantDetailView from '@/components/identify/PlantDetailView';
+import { useSearchParams } from 'react-router-dom';
 
-// Dynamic categories built from actual plant data
 const categoryMeta: Record<string, { icon: typeof Flower2 }> = {
   '草本植物': { icon: Flower2 },
   '乔木': { icon: TreePine },
@@ -18,13 +18,15 @@ type Tab = 'profile' | 'stories' | 'poems' | 'quiz' | 'scenes';
 
 const KnowledgePage = () => {
   const { getAllPlants, collectedSeeds, getSeed } = useSeedVerse();
+  const [searchParams] = useSearchParams();
+  const showAll = searchParams.get('showAll') === 'true';
+
   const [activeCategory, setActiveCategory] = useState('');
-  const [activeTab, setActiveTab] = useState<Tab>('stories');
+  const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   const allPlants = getAllPlants();
 
-  // Build categories dynamically from all plants (including custom)
   const categories = useMemo(() => {
     const catSet = new Set<string>();
     allPlants.forEach(p => { if (p.category) catSet.add(p.category); });
@@ -45,11 +47,11 @@ const KnowledgePage = () => {
     { key: 'stories', label: '趣味故事', emoji: '📖' },
     { key: 'poems', label: '诗词典故', emoji: '🎋' },
     { key: 'quiz', label: '知识问答', emoji: '❓' },
-    { key: 'scenes', label: '情境探索', emoji: '🏞️' },
+    { key: 'scenes', label: '场景绘图', emoji: '🎨' },
   ];
 
   if (selectedPlant) {
-    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} />;
+    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} showAll={showAll} />;
   }
 
   return (
@@ -68,7 +70,7 @@ const KnowledgePage = () => {
       </div>
 
       <div className="px-4 -mt-6 space-y-4">
-        {/* Category filter - dynamically built */}
+        {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
           {categories.map(c => (
             <button
@@ -102,7 +104,7 @@ const KnowledgePage = () => {
           ))}
         </div>
 
-        {/* Content list */}
+        {/* Content list - only show content relevant to active tab */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab + activeCategory}
@@ -132,21 +134,22 @@ const KnowledgePage = () => {
                         {getSeed(plant.id) && (
                           <span className="text-[8px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">已收集</span>
                         )}
-                        {plant.id.startsWith('custom-') && (
-                          <span className="text-[8px] bg-sun-light text-sun px-1.5 py-0.5 rounded-full font-bold">AI生成</span>
-                        )}
                       </div>
+                      {/* Only show content matching the active tab */}
                       {activeTab === 'profile' && (
                         <div className="space-y-1.5">
                           <div className="flex flex-wrap gap-1">
                             <span className="text-[10px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">🌍 {plant.environment}</span>
                             <span className="text-[10px] bg-sky-light text-sky px-1.5 py-0.5 rounded-full font-bold">🧬 {plant.family}</span>
+                            {(plant as Plant).morphology?.rootType && (
+                              <span className="text-[10px] bg-sun-light text-sun px-1.5 py-0.5 rounded-full font-bold">🌱 {(plant as Plant).morphology.rootType}</span>
+                            )}
+                            {(plant as Plant).morphology?.leafShape && (
+                              <span className="text-[10px] bg-petal-light text-petal px-1.5 py-0.5 rounded-full font-bold">🍃 {(plant as Plant).morphology.leafShape}</span>
+                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            <span className="font-bold text-foreground">✨ 形态特征：</span>{plant.features}
-                          </p>
                           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                            <span className="font-bold text-foreground">📚 知识：</span>{plant.knowledge}
+                            <span className="font-bold text-foreground">✨ 形态：</span>{(plant as Plant).morphology?.overallForm || plant.features}
                           </p>
                         </div>
                       )}
@@ -163,8 +166,8 @@ const KnowledgePage = () => {
                       )}
                       {activeTab === 'scenes' && (
                         <div>
-                          <p className="text-xs font-bold text-sun mb-0.5">{plant.scene.name}</p>
-                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{plant.scene.description}</p>
+                          <p className="text-xs font-bold text-sun mb-0.5">🎨 {plant.scene.name}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">点击进入场景绘图</p>
                         </div>
                       )}
                     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
@@ -13,7 +13,7 @@ const SeedAtlasPage = () => {
   const initialFilter = (searchParams.get('filter') as FilterMode) || 'collected';
   const [filter, setFilter] = useState<FilterMode>(initialFilter);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
-  const { collectedSeeds, getAllPlants, getSeed, markSeedViewed } = useSeedVerse();
+  const { collectedSeeds, getAllPlants, getSeed, markSeedViewed, gardenPlots } = useSeedVerse();
 
   const allPlants = getAllPlants();
 
@@ -39,15 +39,13 @@ const SeedAtlasPage = () => {
 
   const handlePlantClick = (plant: Plant) => {
     const seed = getSeed(plant.id);
-    if (!seed) return; // Can't click unrevealed plants
-    if (seed.isNew) {
-      markSeedViewed(plant.id);
-    }
+    if (!seed) return;
+    if (seed.isNew) markSeedViewed(plant.id);
     setSelectedPlant(plant);
   };
 
   if (selectedPlant) {
-    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} />;
+    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} showAll={true} />;
   }
 
   return (
@@ -98,6 +96,7 @@ const SeedAtlasPage = () => {
                 const seed = getSeed(plant.id);
                 const isCollected = !!seed;
                 const isNew = seed?.isNew;
+                const gardenPlot = gardenPlots.find(gp => gp.plantId === plant.id);
 
                 return (
                   <motion.button
@@ -125,6 +124,14 @@ const SeedAtlasPage = () => {
                     <span className="text-[8px] text-muted-foreground">
                       {isCollected ? plant.category : '未收集'}
                     </span>
+                    {/* Growth sync from garden */}
+                    {gardenPlot && (
+                      <div className="w-full mt-0.5">
+                        <div className="h-1 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-leaf" style={{ width: `${gardenPlot.growthProgress}%` }} />
+                        </div>
+                      </div>
+                    )}
                   </motion.button>
                 );
               })

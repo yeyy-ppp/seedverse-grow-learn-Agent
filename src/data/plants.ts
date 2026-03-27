@@ -1,3 +1,15 @@
+export interface PlantMorphology {
+  overallForm: string;  // 整体形态
+  flower: string;       // 花
+  fruit: string;        // 果实
+  stem: string;         // 茎
+  root: string;         // 根
+  rootType: '直根系' | '须根系' | '不定根' | '块根' | '根茎';
+  leaf: string;         // 叶
+  leafShape: string;    // 叶形
+  growthData: string;   // 生长数据
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -14,6 +26,7 @@ export interface Plant {
   quiz: { question: string; options: string[]; answer: number }[];
   scene: { name: string; description: string };
   stages: { name: string; emoji: string; description: string; unlockContent: string }[];
+  morphology: PlantMorphology;
 }
 
 export interface SeedCard {
@@ -38,6 +51,39 @@ export const achievements: Achievement[] = [
   { id: 'quiz-3', name: '知识小达人', emoji: '🧠', description: '完成3次问答', requirement: 3, type: 'learn' },
   { id: 'game-5', name: '游戏高手', emoji: '🎮', description: '完成5个游戏', requirement: 5, type: 'game' },
   { id: 'full-grow', name: '园艺大师', emoji: '🌳', description: '将一棵植物培育到结果', requirement: 1, type: 'collect' },
+];
+
+export const dailyKnowledge = [
+  '你知道吗？世界上最大的花是大王花，直径可达1米！它闻起来像腐肉，用气味吸引苍蝇来帮忙传粉。',
+  '竹子是世界上生长最快的植物，一天可以长近1米！竹子其实是一种草，不是树哦。',
+  '含羞草被碰到就会合拢叶子，这是因为叶柄底部的细胞失去水分导致的，叫做"感震运动"。',
+  '世界上最古老的树超过5000岁！它是一棵叫"玛士撒拉"的狐尾松，生长在美国加利福尼亚。',
+  '仙人掌的刺其实是退化的叶子，这样可以减少水分蒸发，帮助它在沙漠中生存。',
+  '向日葵的花盘上的种子排列遵循"斐波那契数列"，这是大自然中的数学之美！',
+  '荷叶表面有纳米级的小突起，水滴落上去会变成圆球滚落，带走灰尘，这就是"自清洁效应"。',
+  '一棵大橡树每天可以吸收大约400升水，通过蒸腾作用把水分释放到空气中。',
+  '世界上最小的开花植物叫无根萍，只有1毫米大小，比一粒盐还小！',
+  '番茄曾被欧洲人认为有毒，叫做"毒苹果"，直到18世纪才被广泛食用。',
+  '椰子不是坚果，它的学名意思是"长着猴子脸的果实"，是一种核果。',
+  '植物也会"说话"！受到虫害的植物会释放化学物质，警告周围的同伴注意防御。',
+  '香蕉其实是一种浆果，而草莓在植物学上并不是真正的浆果，它是聚合果。',
+  '地球上现存最大的生物是一棵叫"谢尔曼将军"的巨杉，体积约1487立方米。',
+  '薄荷的清凉感来自薄荷醇，它能欺骗你的感觉神经，让大脑觉得"冷"。',
+  '树木的年轮可以告诉我们每一年的气候：宽的年轮代表雨水充沛，窄的代表干旱。',
+  '捕蝇草能在0.1秒内合拢叶片捕捉昆虫，是植物界的"闪电侠"！',
+  '菠萝需要两到三年才能结一个果实，而且每株菠萝一次只结一个。',
+  '银杏被称为"活化石"，在恐龙时代就已经存在了，有2.7亿年的历史！',
+  '玫瑰花瓣可以食用，很多地方用玫瑰做果酱、茶和糕点。',
+  '苔藓没有根，它通过整个身体吸收水分和养分，就像一块活的海绵。',
+  '辣椒的辣味来自辣椒素，这其实是植物保护自己不被哺乳动物吃掉的方式。',
+  '一朵向日葵的花盘上实际有上千朵小花，我们看到的"一朵花"是由许多小花组成的。',
+  '松果在潮湿天气会合拢鳞片，干燥时会张开，可以用来预测天气变化！',
+  '柳树皮含有水杨酸，这是阿司匹林的原始来源，古人用柳树皮来缓解疼痛。',
+  '猪笼草不仅能捕虫，有些种类大到可以捕捉小型蜥蜴和老鼠！',
+  '全世界约有40万种已知植物，每年还有约2000种新植物被发现。',
+  '土豆、番茄、辣椒都属于茄科，它们竟然是"亲戚"！',
+  '棉花的白色纤维其实是种子上的毛，帮助种子随风飘散传播。',
+  '睡莲在白天开花，晚上闭合，就像每天按时"上下班"一样。',
 ];
 
 export const plants: Plant[] = [
@@ -67,6 +113,17 @@ export const plants: Plant[] = [
       { name: '开花', emoji: '🌻', description: '金色的花盘绽放，像一个小太阳，跟着大太阳转', unlockContent: '向日葵开花后会吸引很多蜜蜂来帮忙传粉' },
       { name: '结果', emoji: '🌰', description: '花盘上结满了排列整齐的种子，等待收获', unlockContent: '一朵向日葵可以结出2000多颗种子！' },
     ],
+    morphology: {
+      overallForm: '一年生草本，高1-3.5米，茎直立粗壮，全株被白色粗硬毛',
+      flower: '头状花序，直径10-30厘米，边缘舌状花金黄色，中央管状花棕色，由上千朵小花组成',
+      fruit: '瘦果（瓜子），倒卵形，黑色或黑白条纹，长1-1.5厘米',
+      stem: '直立茎，圆柱形，粗壮中空，绿色，高1-3.5米，被粗糙刚毛',
+      root: '主根发达，入土可达3米，侧根分布广，吸水能力强',
+      rootType: '直根系',
+      leaf: '互生，大型心形或卵形叶，叶缘有锯齿，叶面粗糙，宽10-30厘米',
+      leafShape: '心形/卵形',
+      growthData: '生长周期70-120天，株高1-3.5m，花期7-9月，适温20-30℃',
+    },
   },
   {
     id: 'lotus',
@@ -94,6 +151,17 @@ export const plants: Plant[] = [
       { name: '开花', emoji: '🪷', description: '美丽的粉色花朵从水面升起，清香扑鼻', unlockContent: '荷花凌晨开放，傍晚闭合，持续3天' },
       { name: '结藕', emoji: '🥢', description: '水下的根茎变成了胖胖的莲藕', unlockContent: '莲藕有很多孔，是为了在水下呼吸！' },
     ],
+    morphology: {
+      overallForm: '多年生水生草本，根茎横生于水底淤泥中，叶和花挺出水面',
+      flower: '单生花，直径10-20厘米，花瓣多层，粉色或白色，花托呈倒锥形（莲蓬）',
+      fruit: '坚果（莲子），椭圆形，藏于莲蓬中，外壳坚硬，可食用',
+      stem: '花茎和叶柄中空，内有通气孔道，挺出水面高1-2米',
+      root: '地下茎为莲藕，横生肥大，节间膨大，内有多个孔道用于呼吸',
+      rootType: '根茎',
+      leaf: '圆形盾状叶，直径25-90厘米，表面有蜡质层，具有自清洁效应',
+      leafShape: '盾形/圆形',
+      growthData: '生长周期全年，花期6-9月，适温22-32℃，水深30-120cm',
+    },
   },
   {
     id: 'plum',
@@ -121,6 +189,17 @@ export const plants: Plant[] = [
       { name: '开花', emoji: '🌸', description: '冬天来了，满树的梅花在雪中绽放', unlockContent: '一棵梅树可以开出上千朵花！' },
       { name: '结果', emoji: '🫒', description: '春天，花谢后结出青色的梅子', unlockContent: '青梅煮酒是中国古老的文化传统' },
     ],
+    morphology: {
+      overallForm: '落叶小乔木，高4-10米，树冠开展，枝干苍劲古朴',
+      flower: '先叶开放，1-2朵簇生，直径2-2.5厘米，5瓣，有白、粉、红等色，芳香',
+      fruit: '核果（梅子），球形，直径2-3厘米，黄色或绿色，味酸',
+      stem: '树干灰褐色，小枝绿色，多年生枝条遒劲弯曲，树皮纵裂',
+      root: '主根深入土中，侧根发达，固土能力强，耐瘠薄',
+      rootType: '直根系',
+      leaf: '互生，卵形至椭圆形，叶缘有细锯齿，叶长4-8厘米，先端渐尖',
+      leafShape: '卵形/椭圆形',
+      growthData: '树高4-10m，花期12-3月，果期5-6月，寿命可达数百年',
+    },
   },
   {
     id: 'tomato',
@@ -148,6 +227,17 @@ export const plants: Plant[] = [
       { name: '开花', emoji: '🌼', description: '黄色的小花朵一簇簇地开放', unlockContent: '番茄花可以自花授粉，不需要蜜蜂帮忙' },
       { name: '结果', emoji: '🍅', description: '绿色的小果实慢慢变红，成为美味的番茄', unlockContent: '番茄从开花到成熟需要45-60天' },
     ],
+    morphology: {
+      overallForm: '一年生或多年生草本，高0.6-2米，全株被腺毛，有特殊气味',
+      flower: '聚伞花序，黄色小花，5-6瓣，直径1-2厘米，花柱突出',
+      fruit: '浆果，球形或扁球形，直径3-8厘米，成熟时由绿转红，多汁',
+      stem: '半蔓性茎，圆形，绿色带紫，表面密被腺毛，需支架支撑',
+      root: '主根可入土1.5米，根系横向扩展范围大，再生能力强',
+      rootType: '直根系',
+      leaf: '互生，奇数羽状复叶，小叶卵形，叶缘有不规则锯齿，被腺毛',
+      leafShape: '羽状复叶',
+      growthData: '生长周期90-150天，株高0.6-2m，花期5-8月，适温20-28℃',
+    },
   },
   {
     id: 'pine',
@@ -175,6 +265,17 @@ export const plants: Plant[] = [
       { name: '大树', emoji: '🌲', description: '松树长得又高又壮，枝繁叶茂', unlockContent: '松树可以活上千年！' },
       { name: '结松果', emoji: '🌰', description: '树上挂满了棕色的松果，松子等待播撒', unlockContent: '一棵松树每年可以产出几百个松果' },
     ],
+    morphology: {
+      overallForm: '常绿乔木，高可达30-45米，树冠圆锥形或伞形',
+      flower: '雌雄同株，雄球花簇生枝端，黄色；雌球花单生或簇生，紫红色',
+      fruit: '球果（松果），木质，卵形或圆锥形，成熟时鳞片张开释放种子',
+      stem: '树干通直，树皮厚实纵裂，灰褐色，富含树脂',
+      root: '主根深入岩层，侧根广布，可在岩石缝隙中扎根',
+      rootType: '直根系',
+      leaf: '针形叶，2-5针一束，长5-25厘米，常绿，表面有蜡质层减少水分蒸发',
+      leafShape: '针形',
+      growthData: '树高可达45m，寿命可超千年，年生长30-60cm，四季常绿',
+    },
   },
   {
     id: 'strawberry',
@@ -202,5 +303,16 @@ export const plants: Plant[] = [
       { name: '开花', emoji: '🤍', description: '洁白的五瓣小花在绿叶中绽放', unlockContent: '草莓花需要蜜蜂帮忙授粉' },
       { name: '结果', emoji: '🍓', description: '红红的心形果实挂满了枝头', unlockContent: '草莓从开花到成熟只要30天' },
     ],
+    morphology: {
+      overallForm: '多年生草本，株高10-40厘米，匍匐茎蔓延繁殖',
+      flower: '聚伞花序，白色五瓣花，直径1.5-2厘米，花心黄色，两性花',
+      fruit: '聚合果，由膨大花托发育而成，表面嵌有200多颗瘦果（小种子）',
+      stem: '短缩茎近地面，匍匐茎（走茎）可达1米长，节上生根繁殖',
+      root: '须根系，主根不明显，大量须根分布在20厘米土层内',
+      rootType: '须根系',
+      leaf: '基生，三出复叶，小叶倒卵形，叶缘有锯齿，叶面被毛',
+      leafShape: '三出复叶/倒卵形',
+      growthData: '株高10-40cm，花期4-5月，果期5-7月，适温15-25℃',
+    },
   },
 ];

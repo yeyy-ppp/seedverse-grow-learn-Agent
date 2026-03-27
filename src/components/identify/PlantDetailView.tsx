@@ -9,12 +9,14 @@ import SceneColoringGame from '@/components/games/SceneColoringGame';
 interface Props {
   plant: Plant;
   onBack: () => void;
-  showAll?: boolean; // When true, show all sections; when false, show only active tab content
-  activeTab?: string; // Which tab section to show
+  showAll?: boolean;
+  initialTab?: string;
 }
 
-const PlantDetailView = ({ plant, onBack, showAll = true }: Props) => {
+const PlantDetailView = ({ plant, onBack, showAll = true, initialTab }: Props) => {
   const [showColoring, setShowColoring] = useState(false);
+
+  const showSection = (key: string) => showAll || !initialTab || initialTab === key;
 
   return (
     <div className="min-h-screen pb-24">
@@ -29,30 +31,30 @@ const PlantDetailView = ({ plant, onBack, showAll = true }: Props) => {
         </div>
       </div>
       <div className="px-4 -mt-8 space-y-4">
-        {showAll && <PlantDiagramView plant={plant} />}
+        {showSection('profile') && <PlantDiagramView plant={plant} />}
 
-        {showAll && (
+        {showSection('stories') && (
           <div className="card-nature p-4 space-y-2">
             <h3 className="font-bold text-foreground">📖 趣味故事</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">{plant.story}</p>
           </div>
         )}
 
-        {showAll && (
+        {showSection('profile') && (
           <div className="card-nature p-4 space-y-2">
             <h3 className="font-bold text-foreground">🔬 知识讲解</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">{plant.knowledge}</p>
           </div>
         )}
 
-        {showAll && (
+        {showSection('poems') && (
           <div className="card-nature p-4 space-y-2 bg-gradient-to-br from-petal-light to-sky-light">
             <h3 className="font-bold text-foreground">🎋 诗词典故</h3>
             <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-display text-base">{plant.poem}</p>
           </div>
         )}
 
-        {showAll && (
+        {showSection('scenes') && (
           <div className="card-nature p-4 space-y-2">
             <h3 className="font-bold text-foreground">🎨 场景绘图 · {plant.scene.name}</h3>
             {showColoring ? (
@@ -68,7 +70,7 @@ const PlantDetailView = ({ plant, onBack, showAll = true }: Props) => {
           </div>
         )}
 
-        {showAll && (
+        {showSection('quiz') && (
           <div className="card-nature p-4 space-y-3">
             <h3 className="font-bold text-foreground">❓ 互动问答</h3>
             {plant.quiz.map((q, i) => (

@@ -5,7 +5,6 @@ import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
 import PlantDetailView from '@/components/identify/PlantDetailView';
 
-// Dynamic categories built from actual plant data
 const categoryMeta: Record<string, { icon: typeof Flower2 }> = {
   '草本植物': { icon: Flower2 },
   '乔木': { icon: TreePine },
@@ -19,12 +18,11 @@ type Tab = 'profile' | 'stories' | 'poems' | 'quiz' | 'scenes';
 const KnowledgePage = () => {
   const { getAllPlants, collectedSeeds, getSeed } = useSeedVerse();
   const [activeCategory, setActiveCategory] = useState('');
-  const [activeTab, setActiveTab] = useState<Tab>('stories');
+  const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   const allPlants = getAllPlants();
 
-  // Build categories dynamically from all plants (including custom)
   const categories = useMemo(() => {
     const catSet = new Set<string>();
     allPlants.forEach(p => { if (p.category) catSet.add(p.category); });
@@ -45,11 +43,11 @@ const KnowledgePage = () => {
     { key: 'stories', label: '趣味故事', emoji: '📖' },
     { key: 'poems', label: '诗词典故', emoji: '🎋' },
     { key: 'quiz', label: '知识问答', emoji: '❓' },
-    { key: 'scenes', label: '情境探索', emoji: '🏞️' },
+    { key: 'scenes', label: '场景绘图', emoji: '🎨' },
   ];
 
   if (selectedPlant) {
-    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} />;
+    return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} showAll={false} initialTab={activeTab} />;
   }
 
   return (
@@ -68,16 +66,13 @@ const KnowledgePage = () => {
       </div>
 
       <div className="px-4 -mt-6 space-y-4">
-        {/* Category filter - dynamically built */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
           {categories.map(c => (
             <button
               key={c.label}
               onClick={() => setActiveCategory(c.filter)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                activeCategory === c.filter
-                  ? 'bg-leaf text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
+                activeCategory === c.filter ? 'bg-leaf text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               <c.icon size={14} /> {c.label}
@@ -85,16 +80,13 @@ const KnowledgePage = () => {
           ))}
         </div>
 
-        {/* Content tabs */}
         <div className="flex gap-1 bg-muted rounded-2xl p-1">
           {tabs.map(t => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
               className={`flex-1 text-xs py-2 rounded-xl font-bold transition-all ${
-                activeTab === t.key
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground'
+                activeTab === t.key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
               }`}
             >
               {t.emoji} {t.label}
@@ -102,7 +94,6 @@ const KnowledgePage = () => {
           ))}
         </div>
 
-        {/* Content list */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab + activeCategory}
@@ -132,21 +123,20 @@ const KnowledgePage = () => {
                         {getSeed(plant.id) && (
                           <span className="text-[8px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">已收集</span>
                         )}
-                        {plant.id.startsWith('custom-') && (
-                          <span className="text-[8px] bg-sun-light text-sun px-1.5 py-0.5 rounded-full font-bold">AI生成</span>
-                        )}
                       </div>
                       {activeTab === 'profile' && (
                         <div className="space-y-1.5">
                           <div className="flex flex-wrap gap-1">
-                            <span className="text-[10px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">🌍 {plant.environment}</span>
-                            <span className="text-[10px] bg-sky-light text-sky px-1.5 py-0.5 rounded-full font-bold">🧬 {plant.family}</span>
+                            <span className="text-[10px] bg-leaf-light text-leaf px-1.5 py-0.5 rounded-full font-bold">🧬 {plant.family}</span>
+                            {(plant as Plant).morphology?.rootType && (
+                              <span className="text-[10px] bg-sun-light text-sun px-1.5 py-0.5 rounded-full font-bold">🌱 {(plant as Plant).morphology.rootType}</span>
+                            )}
+                            {(plant as Plant).morphology?.leafShape && (
+                              <span className="text-[10px] bg-petal-light text-petal px-1.5 py-0.5 rounded-full font-bold">🍃 {(plant as Plant).morphology.leafShape}</span>
+                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            <span className="font-bold text-foreground">✨ 形态特征：</span>{plant.features}
-                          </p>
                           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                            <span className="font-bold text-foreground">📚 知识：</span>{plant.knowledge}
+                            {(plant as Plant).morphology?.overallForm || plant.features}
                           </p>
                         </div>
                       )}
@@ -157,15 +147,10 @@ const KnowledgePage = () => {
                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 font-display">{plant.poem}</p>
                       )}
                       {activeTab === 'quiz' && (
-                        <p className="text-xs text-muted-foreground">
-                          {plant.quiz.length} 道问答题 · 点击开始答题
-                        </p>
+                        <p className="text-xs text-muted-foreground">{plant.quiz.length} 道问答题 · 点击开始答题</p>
                       )}
                       {activeTab === 'scenes' && (
-                        <div>
-                          <p className="text-xs font-bold text-sun mb-0.5">{plant.scene.name}</p>
-                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{plant.scene.description}</p>
-                        </div>
+                        <p className="text-xs text-sun font-bold">🎨 {plant.scene.name} · 点击进入绘图</p>
                       )}
                     </div>
                     <ChevronRight size={16} className="text-muted-foreground mt-1 shrink-0" />

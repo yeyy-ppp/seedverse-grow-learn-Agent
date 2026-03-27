@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Camera, Sprout, BookOpen, Gamepad2, Sparkles } from 'lucide-react';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
+import { dailyKnowledge } from '@/data/plants';
 
 const features = [
   { icon: Camera, label: '拍照识花', desc: '拍一拍，认识新植物', path: '/identify', color: 'bg-sky-light text-sky' },
@@ -10,8 +11,13 @@ const features = [
   { icon: Gamepad2, label: '趣味游戏', desc: '边玩边学', path: '/games', color: 'bg-petal-light text-petal' },
 ];
 
+const getDailyTip = () => {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  return dailyKnowledge[dayOfYear % dailyKnowledge.length];
+};
+
 const HomePage = () => {
-  const { collectedSeeds, getAllPlants } = useSeedVerse();
+  const { collectedSeeds, getAllPlants, gardenPlots, getPlantById } = useSeedVerse();
   const allPlants = getAllPlants();
 
   const stats = [
@@ -19,6 +25,13 @@ const HomePage = () => {
     { value: allPlants.length, label: '图鉴总数', color: 'text-sun', filter: 'total' },
     { value: allPlants.length - collectedSeeds.length, label: '等待探索', color: 'text-petal', filter: 'undiscovered' },
   ];
+
+  // Get growth-synced recent collections
+  const recentWithGrowth = collectedSeeds.slice(-4).reverse().map(s => {
+    const plant = allPlants.find(p => p.id === s.plantId);
+    const gardenPlot = gardenPlots.find(gp => gp.plantId === s.plantId);
+    return { seed: s, plant, gardenPlot };
+  }).filter(r => r.plant);
 
   return (
     <div className="min-h-screen pb-24">
@@ -66,21 +79,34 @@ const HomePage = () => {
           ))}
         </div>
 
-        {/* Recent collections */}
+        {/* Recent collections with growth sync */}
         <div>
           <h2 className="font-bold text-lg text-foreground flex items-center gap-2 mb-3">
             <Sparkles size={18} className="text-sun" /> {collectedSeeds.length > 0 ? '最近收集' : '热门植物'}
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
-            {(collectedSeeds.length > 0
-              ? collectedSeeds.slice(-4).reverse().map(s => allPlants.find(p => p.id === s.plantId)).filter(Boolean)
-              : allPlants.slice(0, 4)
-            ).map((plant, i) => plant && (
-              <motion.div key={plant.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
-                <Link to={`/plant/${plant.id}`} className="card-nature p-3 flex flex-col items-center gap-1 min-w-[100px]">
-                  <span className="text-4xl">{plant.emoji}</span>
-                  <span className="text-xs font-bold text-foreground">{plant.name}</span>
-                  <span className="text-[9px] text-muted-foreground">{plant.category}</span>
+            {(recentWithGrowth.length > 0
+              ? recentWithGrowth
+              : allPlants.slice(0, 4).map(p => ({ seed: null, plant: p, gardenPlot: null }))
+            ).map((item, i) => item.plant && (
+              <motion.div key={item.plant.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
+                <Link to={`/plant/${item.plant.id}`} className="card-nature p-3 flex flex-col items-center gap-1 min-w-[100px]">
+                  <span className="text-4xl">{item.plant.emoji}</span>
+                  <span className="text-xs font-bold text-foreground">{item.plant.name}</span>
+                  <span className="text-[9px] text-muted-foreground">{item.plant.category}</span>
+                  {item.gardenPlot && (
+                    <div className="w-full mt-1">
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div className="h-full rounded-full bg-leaf" style={{ width: `${item.gardenPlot.growthProgress}%` }} />
+                      </div>
+                      <span className="text-[8px] text-leaf font-bold">生长 {Math.round(item.gardenPlot.growthProgress)}%</span>
+                    </div>
+                  )}
+                  {item.seed && !item.gardenPlot && (
+                    <span className="text-[8px] text-muted-foreground">
+                      阶段 {item.seed.currentStage + 1}/{item.plant.stages.length}
+                    </span>
+                  )}
                 </Link>
               </motion.div>
             ))}
@@ -89,9 +115,7 @@ const HomePage = () => {
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="card-nature p-5 bg-gradient-to-br from-sun-light to-petal-light">
           <h3 className="font-bold text-sm text-foreground mb-1">🌟 每日小知识</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            你知道吗？世界上最大的花是大王花，直径可达1米！它闻起来像腐肉，用气味吸引苍蝇来帮忙传粉。大自然真是充满奇妙的智慧！
-          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">{getDailyTip()}</p>
         </motion.div>
       </div>
     </div>

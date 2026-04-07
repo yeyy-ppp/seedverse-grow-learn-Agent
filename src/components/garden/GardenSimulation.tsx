@@ -2,12 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse, GardenPlot } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X } from 'lucide-react';
+import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X, CloudDrizzle, CloudHail, CloudFog } from 'lucide-react';
 import GardenWeatherEffects from './GardenWeatherEffects';
 import GardenPlotCard from './GardenPlotCard';
 import PlantInfoModal from './PlantInfoModal';
 
-export type Weather = 'sunny' | 'rainy' | 'cloudy' | 'windy' | 'snowy';
+export type Weather = 'sunny' | 'rainy' | 'cloudy' | 'windy' | 'snowy' | 'light_rain' | 'heavy_rain' | 'sleet' | 'foggy';
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export interface SolarTerm {
@@ -53,17 +53,21 @@ export const seasonInfo: Record<Season, { name: string; emoji: string; bg: strin
 
 export const weatherInfo: Record<Weather, { name: string; icon: typeof Sun; effect: string }> = {
   sunny: { name: '晴天', icon: Sun, effect: '阳光充足，植物生长加速' },
-  rainy: { name: '雨天', icon: CloudRain, effect: '自动浇水，水分充足' },
+  rainy: { name: '中雨', icon: CloudRain, effect: '自动浇水，水分充足' },
+  light_rain: { name: '小雨', icon: CloudDrizzle, effect: '细雨绵绵，温润滋养' },
+  heavy_rain: { name: '大雨', icon: CloudRain, effect: '暴雨倾盆，注意排水' },
+  sleet: { name: '雨夹雪', icon: CloudHail, effect: '雨雪交加，注意保暖' },
+  foggy: { name: '大雾', icon: CloudFog, effect: '雾气弥漫，能见度低' },
   cloudy: { name: '多云', icon: Cloud, effect: '温和天气，正常生长' },
   windy: { name: '大风', icon: Wind, effect: '注意防护，生长略慢' },
   snowy: { name: '下雪', icon: Snowflake, effect: '寒冷天气，需要保暖' },
 };
 
 const weatherBySeason: Record<Season, Weather[]> = {
-  spring: ['sunny', 'rainy', 'cloudy', 'windy'],
-  summer: ['sunny', 'sunny', 'rainy', 'cloudy'],
-  autumn: ['sunny', 'cloudy', 'windy', 'rainy'],
-  winter: ['cloudy', 'snowy', 'snowy', 'windy'],
+  spring: ['sunny', 'light_rain', 'rainy', 'cloudy', 'windy', 'foggy'],
+  summer: ['sunny', 'sunny', 'rainy', 'heavy_rain', 'cloudy', 'foggy'],
+  autumn: ['sunny', 'cloudy', 'windy', 'light_rain', 'rainy', 'foggy'],
+  winter: ['cloudy', 'snowy', 'snowy', 'windy', 'sleet', 'foggy'],
 };
 
 // One full seasonal cycle = 12 hours real time → 2 cycles per day
@@ -119,9 +123,12 @@ const GardenSimulation = () => {
         if (!plot.plantId) return plot;
         let growthRate = 0.5;
         if (weather === 'sunny') growthRate = 1.0;
-        if (weather === 'rainy') growthRate = 0.8;
+        if (weather === 'rainy' || weather === 'light_rain') growthRate = 0.8;
+        if (weather === 'heavy_rain') growthRate = 0.6;
         if (weather === 'windy') growthRate = 0.3;
         if (weather === 'snowy') growthRate = 0.1;
+        if (weather === 'sleet') growthRate = 0.15;
+        if (weather === 'foggy') growthRate = 0.4;
         if (season === 'spring') growthRate *= 1.2;
         if (season === 'summer') growthRate *= 1.0;
         if (season === 'autumn') growthRate *= 0.7;
@@ -131,7 +138,7 @@ const GardenSimulation = () => {
         if (plot.fertilized) growthRate *= 1.5;
         if (isNight) growthRate *= 0.5;
 
-        const waterDrain = weather === 'rainy' ? -0.5 : weather === 'sunny' ? 0.8 : 0.4;
+        const waterDrain = ['rainy', 'light_rain', 'heavy_rain', 'sleet'].includes(weather) ? -0.5 : weather === 'sunny' ? 0.8 : 0.4;
         const newWater = Math.max(0, Math.min(100, plot.waterLevel - waterDrain));
         const newGrowth = Math.min(100, plot.growthProgress + growthRate);
         return { ...plot, growthProgress: newGrowth, waterLevel: newWater };

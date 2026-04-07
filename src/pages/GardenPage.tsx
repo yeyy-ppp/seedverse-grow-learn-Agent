@@ -14,10 +14,10 @@ type ViewMode = 'garden' | 'list';
 // Reuse the same deterministic time logic
 const CYCLE_MS = 12 * 60 * 60 * 1000;
 const weatherBySeason: Record<Season, Weather[]> = {
-  spring: ['sunny', 'rainy', 'cloudy', 'windy'],
-  summer: ['sunny', 'sunny', 'rainy', 'cloudy'],
-  autumn: ['sunny', 'cloudy', 'windy', 'rainy'],
-  winter: ['cloudy', 'snowy', 'snowy', 'windy'],
+  spring: ['sunny', 'light_rain', 'rainy', 'cloudy', 'windy', 'foggy'],
+  summer: ['sunny', 'sunny', 'rainy', 'heavy_rain', 'cloudy', 'foggy'],
+  autumn: ['sunny', 'cloudy', 'windy', 'light_rain', 'rainy', 'foggy'],
+  winter: ['cloudy', 'snowy', 'snowy', 'windy', 'sleet', 'foggy'],
 };
 
 function getPageTimeState() {

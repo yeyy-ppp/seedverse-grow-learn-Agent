@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse, GardenPlot } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X } from 'lucide-react';
+import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X, CloudDrizzle, CloudHail, CloudFog } from 'lucide-react';
 import GardenWeatherEffects from './GardenWeatherEffects';
 import GardenPlotCard from './GardenPlotCard';
 import PlantInfoModal from './PlantInfoModal';
@@ -53,17 +53,21 @@ export const seasonInfo: Record<Season, { name: string; emoji: string; bg: strin
 
 export const weatherInfo: Record<Weather, { name: string; icon: typeof Sun; effect: string }> = {
   sunny: { name: '晴天', icon: Sun, effect: '阳光充足，植物生长加速' },
-  rainy: { name: '雨天', icon: CloudRain, effect: '自动浇水，水分充足' },
+  rainy: { name: '中雨', icon: CloudRain, effect: '自动浇水，水分充足' },
+  light_rain: { name: '小雨', icon: CloudDrizzle, effect: '细雨绵绵，温润滋养' },
+  heavy_rain: { name: '大雨', icon: CloudRain, effect: '暴雨倾盆，注意排水' },
+  sleet: { name: '雨夹雪', icon: CloudHail, effect: '雨雪交加，注意保暖' },
+  foggy: { name: '大雾', icon: CloudFog, effect: '雾气弥漫，能见度低' },
   cloudy: { name: '多云', icon: Cloud, effect: '温和天气，正常生长' },
   windy: { name: '大风', icon: Wind, effect: '注意防护，生长略慢' },
   snowy: { name: '下雪', icon: Snowflake, effect: '寒冷天气，需要保暖' },
 };
 
 const weatherBySeason: Record<Season, Weather[]> = {
-  spring: ['sunny', 'rainy', 'cloudy', 'windy'],
-  summer: ['sunny', 'sunny', 'rainy', 'cloudy'],
-  autumn: ['sunny', 'cloudy', 'windy', 'rainy'],
-  winter: ['cloudy', 'snowy', 'snowy', 'windy'],
+  spring: ['sunny', 'light_rain', 'rainy', 'cloudy', 'windy', 'foggy'],
+  summer: ['sunny', 'sunny', 'rainy', 'heavy_rain', 'cloudy', 'foggy'],
+  autumn: ['sunny', 'cloudy', 'windy', 'light_rain', 'rainy', 'foggy'],
+  winter: ['cloudy', 'snowy', 'snowy', 'windy', 'sleet', 'foggy'],
 };
 
 // One full seasonal cycle = 12 hours real time → 2 cycles per day

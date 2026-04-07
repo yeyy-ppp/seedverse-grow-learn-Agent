@@ -121,7 +121,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
             filter: 'blur(20px)',
           }}
           initial={{ left: '-20%', opacity: 0 }}
-          animate={{ left: ['−20%', '120%'], opacity: [0, 0.7, 0.7, 0] }}
+          animate={{ left: ['-20%', '120%'], opacity: [0, 0.7, 0.7, 0] }}
           transition={{ duration: f.duration, repeat: Infinity, delay: f.delay, ease: 'linear' }}
         />
       ))}
@@ -252,8 +252,8 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
           style={{
             top: `${w.y}%`, height: 2, width: w.width,
             background: isNight
-              ? 'linear-gradient(90deg, transparent, hsla(210,20%,70%,0.15), transparent)'
-              : 'linear-gradient(90deg, transparent, hsla(200,30%,60%,0.2), transparent)',
+              ? 'linear-gradient(90deg, transparent, hsla(210,20%,80%,0.35), transparent)'
+              : 'linear-gradient(90deg, transparent, hsla(200,30%,70%,0.45), transparent)',
             borderRadius: 2,
           }}
           initial={{ x: '-15%', opacity: 0 }}

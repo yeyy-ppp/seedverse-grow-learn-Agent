@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_emoji: string | null
+          created_at: string
+          id: string
+          nickname: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          created_at?: string
+          id?: string
+          nickname?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_emoji?: string | null
+          created_at?: string
+          id?: string
+          nickname?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_game_history: {
+        Row: {
+          game_type: string
+          id: string
+          played_at: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          game_type: string
+          id?: string
+          played_at?: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          game_type?: string
+          id?: string
+          played_at?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_plant_history: {
+        Row: {
+          id: string
+          plant_id: string
+          plant_name: string
+          scanned_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          plant_id: string
+          plant_name: string
+          scanned_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          plant_id?: string
+          plant_name?: string
+          scanned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_seeds: {
+        Row: {
+          collected_at: string
+          current_stage: number | null
+          id: string
+          plant_id: string
+          unlocked: boolean[] | null
+          user_id: string
+        }
+        Insert: {
+          collected_at?: string
+          current_stage?: number | null
+          id?: string
+          plant_id: string
+          unlocked?: boolean[] | null
+          user_id: string
+        }
+        Update: {
+          collected_at?: string
+          current_stage?: number | null
+          id?: string
+          plant_id?: string
+          unlocked?: boolean[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

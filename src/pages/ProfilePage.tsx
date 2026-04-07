@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { achievements, Plant } from '@/data/plants';
-import { Trophy, BookOpen, Gamepad2, Sprout, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Trophy, BookOpen, Gamepad2, Sprout, ArrowLeft, ChevronRight, LogOut, LogIn } from 'lucide-react';
 import PlantDetailView from '@/components/identify/PlantDetailView';
 
 type ReviewMode = null | 'seeds' | 'quiz' | 'games';
 
 const ProfilePage = () => {
   const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed, getPlantById } = useSeedVerse();
+  const { user, profile, signOut, loading } = useAuth();
   const allPlants = getAllPlants();
   const navigate = useNavigate();
   const [reviewMode, setReviewMode] = useState<ReviewMode>(null);
@@ -46,12 +48,8 @@ const ProfilePage = () => {
         </div>
         <div className="px-4 -mt-6 space-y-3">
           {collectedPlants.map(plant => plant && (
-            <motion.div
-              key={plant.id}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedPlant(plant as Plant)}
-              className="card-nature p-4 flex items-center gap-3 cursor-pointer"
-            >
+            <motion.div key={plant.id} whileTap={{ scale: 0.98 }} onClick={() => setSelectedPlant(plant as Plant)}
+              className="card-nature p-4 flex items-center gap-3 cursor-pointer">
               <span className="text-3xl">{plant.emoji}</span>
               <div className="flex-1">
                 <h3 className="font-bold text-foreground text-sm">{plant.name}</h3>
@@ -84,12 +82,8 @@ const ProfilePage = () => {
         <div className="px-4 -mt-6 space-y-3">
           <p className="text-xs text-muted-foreground">点击植物可进入查看问答内容：</p>
           {collectedPlants.map(plant => plant && (
-            <motion.div
-              key={plant.id}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedPlant(plant as Plant)}
-              className="card-nature p-4 flex items-center gap-3 cursor-pointer"
-            >
+            <motion.div key={plant.id} whileTap={{ scale: 0.98 }} onClick={() => setSelectedPlant(plant as Plant)}
+              className="card-nature p-4 flex items-center gap-3 cursor-pointer">
               <span className="text-3xl">{plant.emoji}</span>
               <div className="flex-1">
                 <h3 className="font-bold text-foreground text-sm">{plant.name}</h3>
@@ -123,9 +117,7 @@ const ProfilePage = () => {
             <p className="text-4xl">🏆</p>
             <p className="text-2xl font-bold text-sun">{gameCount}</p>
             <p className="text-sm text-muted-foreground">累计完成游戏次数</p>
-            <button onClick={() => navigate('/games')} className="btn-sun text-sm">
-              去玩更多游戏
-            </button>
+            <button onClick={() => navigate('/games')} className="btn-sun text-sm">去玩更多游戏</button>
           </div>
         </div>
       </div>
@@ -135,20 +127,33 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen pb-24">
       <div className="bg-gradient-to-br from-petal-light to-sky-light pt-10 pb-14 px-4 rounded-b-[3rem] text-center">
-        <div className="w-20 h-20 rounded-full gradient-nature-bg flex items-center justify-center mx-auto mb-3 text-4xl">🧒</div>
-        <h1 className="text-xl font-bold text-foreground">小小植物学家</h1>
-        <p className="text-xs text-muted-foreground">探索植物世界的旅程才刚开始</p>
+        <div className="w-20 h-20 rounded-full gradient-nature-bg flex items-center justify-center mx-auto mb-3 text-4xl">
+          {profile?.avatar_emoji || '🧒'}
+        </div>
+        <h1 className="text-xl font-bold text-foreground">{profile?.nickname || '小小植物学家'}</h1>
+        {user ? (
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">探索植物世界的旅程才刚开始</p>
+        )}
+        <div className="flex justify-center gap-2 mt-3">
+          {user ? (
+            <button onClick={signOut} className="flex items-center gap-1 bg-destructive/10 text-destructive px-4 py-1.5 rounded-full text-xs font-bold">
+              <LogOut size={14} /> 退出登录
+            </button>
+          ) : (
+            <button onClick={() => navigate('/auth')} className="flex items-center gap-1 btn-nature px-4 py-1.5 text-xs font-bold">
+              <LogIn size={14} /> 登录 / 注册
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="px-4 -mt-8 space-y-4">
         <div className="grid grid-cols-3 gap-2">
           {stats.map(s => (
-            <motion.button
-              key={s.label}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setReviewMode(s.mode)}
-              className="card-nature p-3 text-center cursor-pointer"
-            >
+            <motion.button key={s.label} whileTap={{ scale: 0.95 }} onClick={() => setReviewMode(s.mode)}
+              className="card-nature p-3 text-center cursor-pointer">
               <s.icon size={20} className={`mx-auto ${s.color}`} />
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
               <p className="text-[9px] text-muted-foreground font-semibold">{s.label}</p>
@@ -181,12 +186,9 @@ const ProfilePage = () => {
             {allPlants.map(p => {
               const collected = getSeed(p.id);
               return (
-                <motion.button
-                  key={p.id}
-                  whileTap={collected ? { scale: 0.9 } : undefined}
+                <motion.button key={p.id} whileTap={collected ? { scale: 0.9 } : undefined}
                   onClick={() => collected && setSelectedPlant(p as Plant)}
-                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${collected ? 'bg-leaf-light cursor-pointer' : 'bg-muted cursor-default'}`}
-                >
+                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${collected ? 'bg-leaf-light cursor-pointer' : 'bg-muted cursor-default'}`}>
                   {collected ? p.emoji : '❓'}
                 </motion.button>
               );

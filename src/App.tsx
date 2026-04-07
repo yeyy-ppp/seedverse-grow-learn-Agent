@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SeedVerseProvider } from "@/contexts/SeedVerseContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import BottomNav from "@/components/BottomNav";
 import HomePage from "./pages/HomePage";
 import IdentifyPage from "./pages/IdentifyPage";
@@ -13,6 +14,7 @@ import ProfilePage from "./pages/ProfilePage";
 import PlantDetailPage from "./pages/PlantDetailPage";
 import KnowledgePage from "./pages/KnowledgePage";
 import SeedAtlasPage from "./pages/SeedAtlasPage";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,26 +22,29 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <SeedVerseProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="max-w-lg mx-auto relative">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/identify" element={<IdentifyPage />} />
-              <Route path="/garden" element={<GardenPage />} />
-              <Route path="/games" element={<GamesPage />} />
-              <Route path="/knowledge" element={<KnowledgePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/plant/:id" element={<PlantDetailPage />} />
-              <Route path="/atlas" element={<SeedAtlasPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <BottomNav />
-          </div>
-        </BrowserRouter>
-      </SeedVerseProvider>
+      <AuthProvider>
+        <SeedVerseProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <div className="max-w-lg mx-auto relative">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/identify" element={<IdentifyPage />} />
+                <Route path="/garden" element={<GardenPage />} />
+                <Route path="/games" element={<GamesPage />} />
+                <Route path="/knowledge" element={<KnowledgePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/plant/:id" element={<PlantDetailPage />} />
+                <Route path="/atlas" element={<SeedAtlasPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <BottomNav />
+            </div>
+          </BrowserRouter>
+        </SeedVerseProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

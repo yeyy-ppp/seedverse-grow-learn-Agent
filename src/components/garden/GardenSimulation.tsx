@@ -7,7 +7,7 @@ import GardenWeatherEffects from './GardenWeatherEffects';
 import GardenPlotCard from './GardenPlotCard';
 import PlantInfoModal from './PlantInfoModal';
 
-export type Weather = 'sunny' | 'rainy' | 'cloudy' | 'windy' | 'snowy';
+export type Weather = 'sunny' | 'rainy' | 'cloudy' | 'windy' | 'snowy' | 'light_rain' | 'heavy_rain' | 'sleet' | 'foggy';
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export interface SolarTerm {

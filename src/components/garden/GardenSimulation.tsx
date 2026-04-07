@@ -123,9 +123,12 @@ const GardenSimulation = () => {
         if (!plot.plantId) return plot;
         let growthRate = 0.5;
         if (weather === 'sunny') growthRate = 1.0;
-        if (weather === 'rainy') growthRate = 0.8;
+        if (weather === 'rainy' || weather === 'light_rain') growthRate = 0.8;
+        if (weather === 'heavy_rain') growthRate = 0.6;
         if (weather === 'windy') growthRate = 0.3;
         if (weather === 'snowy') growthRate = 0.1;
+        if (weather === 'sleet') growthRate = 0.15;
+        if (weather === 'foggy') growthRate = 0.4;
         if (season === 'spring') growthRate *= 1.2;
         if (season === 'summer') growthRate *= 1.0;
         if (season === 'autumn') growthRate *= 0.7;
@@ -135,7 +138,7 @@ const GardenSimulation = () => {
         if (plot.fertilized) growthRate *= 1.5;
         if (isNight) growthRate *= 0.5;
 
-        const waterDrain = weather === 'rainy' ? -0.5 : weather === 'sunny' ? 0.8 : 0.4;
+        const waterDrain = ['rainy', 'light_rain', 'heavy_rain', 'sleet'].includes(weather) ? -0.5 : weather === 'sunny' ? 0.8 : 0.4;
         const newWater = Math.max(0, Math.min(100, plot.waterLevel - waterDrain));
         const newGrowth = Math.min(100, plot.growthProgress + growthRate);
         return { ...plot, growthProgress: newGrowth, waterLevel: newWater };

@@ -14,12 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      collected_cards: {
+        Row: {
+          collected_at: string
+          id: string
+          plant_emoji: string
+          plant_id: string
+          plant_name: string
+          user_id: string
+        }
+        Insert: {
+          collected_at?: string
+          id?: string
+          plant_emoji?: string
+          plant_id: string
+          plant_name: string
+          user_id: string
+        }
+        Update: {
+          collected_at?: string
+          id?: string
+          plant_emoji?: string
+          plant_id?: string
+          plant_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_emoji: string | null
           created_at: string
           id: string
           nickname: string | null
+          points: number
+          unlocked_pots: number
           updated_at: string
           user_id: string
         }
@@ -28,6 +57,8 @@ export type Database = {
           created_at?: string
           id?: string
           nickname?: string | null
+          points?: number
+          unlocked_pots?: number
           updated_at?: string
           user_id: string
         }
@@ -36,6 +67,8 @@ export type Database = {
           created_at?: string
           id?: string
           nickname?: string | null
+          points?: number
+          unlocked_pots?: number
           updated_at?: string
           user_id?: string
         }

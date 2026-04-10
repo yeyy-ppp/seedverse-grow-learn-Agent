@@ -75,7 +75,7 @@ const generateSceneElements = (plant: Plant) => {
 };
 
 const SceneColoringGame = ({ plant, onBack }: Props) => {
-  const { collectSeed, incrementGame, getSeed } = useSeedVerse();
+  const { collectSeed, incrementGame, getSeed, addPoints } = useSeedVerse();
   const alreadyCollected = !!getSeed(plant.id);
   const [selectedColor, setSelectedColor] = useState(RAINBOW_COLORS[0].color);
   const [colorMap, setColorMap] = useState<Record<number, string>>({});
@@ -91,6 +91,7 @@ const SceneColoringGame = ({ plant, onBack }: Props) => {
       if (Object.keys(next).length >= totalColorable && !completed) {
         setCompleted(true);
         incrementGame();
+        addPoints(2);
         if (!alreadyCollected) collectSeed(plant.id);
       }
       return next;

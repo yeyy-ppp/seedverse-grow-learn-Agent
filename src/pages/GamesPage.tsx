@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { Puzzle, BookOpen, Palette, ArrowLeft, Lock, Unlock, Brain, Tags, Zap, Microscope } from 'lucide-react';
+import { Puzzle, BookOpen, Palette, ArrowLeft, Lock, Unlock, Brain, Tags, Zap, Microscope, Coins } from 'lucide-react';
 import SlidingPuzzle from '@/components/games/SlidingPuzzle';
 import PlantPoemGame from '@/components/games/PlantPoemGame';
 import MatchGame from '@/components/games/MatchGame';
@@ -17,18 +17,18 @@ type GameType = 'puzzle' | 'poem' | 'match' | 'quiz' | 'sort' | 'speed' | 'color
 const GamesPage = () => {
   const [activeGame, setActiveGame] = useState<GameType>(null);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
-  const { getAllPlants, getSeed } = useSeedVerse();
+  const { getAllPlants, getSeed, points } = useSeedVerse();
   const allPlants = getAllPlants();
 
   const games = [
-    { type: 'puzzle' as const, icon: Puzzle, name: '场景拼图', desc: '拼出植物场景图片，解锁新种子', color: 'bg-leaf-light text-leaf', needsPlant: true },
-    { type: 'coloring' as const, icon: Palette, name: '场景绘图', desc: '给植物场景填上美丽的颜色', color: 'bg-sun-light text-sun', needsPlant: true },
-    { type: 'poem' as const, icon: BookOpen, name: '诗词填空', desc: '针对每种植物进行诗词挑战', color: 'bg-petal-light text-petal', needsPlant: true },
-    { type: 'quiz' as const, icon: Brain, name: '知识问答', desc: '回答植物知识问题，答对解锁种子', color: 'bg-sky-light text-sky', needsPlant: true },
-    { type: 'match' as const, icon: Palette, name: '记忆配对', desc: '翻卡片找到对应的植物', color: 'bg-sun-light text-sun', needsPlant: false },
-    { type: 'sort' as const, icon: Tags, name: '分类挑战', desc: '将植物放入正确的分类', color: 'bg-fruit-light text-fruit', needsPlant: false },
-    { type: 'morphSort' as const, icon: Microscope, name: '形态分类', desc: '按根系/叶形/科属分类植物', color: 'bg-leaf-light text-leaf', needsPlant: false },
-    { type: 'speed' as const, icon: Zap, name: '极速识别', desc: '限时识别植物，速度越快分数越高', color: 'bg-petal-light text-petal', needsPlant: false },
+    { type: 'puzzle' as const, icon: Puzzle, name: '场景拼图', desc: '拼出植物场景图片', color: 'bg-leaf-light text-leaf', needsPlant: true, pts: 3 },
+    { type: 'coloring' as const, icon: Palette, name: '场景绘图', desc: '给植物场景填上美丽的颜色', color: 'bg-sun-light text-sun', needsPlant: true, pts: 2 },
+    { type: 'poem' as const, icon: BookOpen, name: '诗词填空', desc: '针对每种植物进行诗词挑战', color: 'bg-petal-light text-petal', needsPlant: true, pts: 2 },
+    { type: 'quiz' as const, icon: Brain, name: '知识问答', desc: '回答植物知识问题', color: 'bg-sky-light text-sky', needsPlant: true, pts: 2 },
+    { type: 'match' as const, icon: Palette, name: '记忆配对', desc: '翻卡片找到对应的植物', color: 'bg-sun-light text-sun', needsPlant: false, pts: 1 },
+    { type: 'sort' as const, icon: Tags, name: '分类挑战', desc: '将植物放入正确的分类', color: 'bg-fruit-light text-fruit', needsPlant: false, pts: 1 },
+    { type: 'morphSort' as const, icon: Microscope, name: '形态分类', desc: '按根系/叶形/科属分类植物', color: 'bg-leaf-light text-leaf', needsPlant: false, pts: 1 },
+    { type: 'speed' as const, icon: Zap, name: '极速识别', desc: '限时识别植物，速度越快分数越高', color: 'bg-petal-light text-petal', needsPlant: false, pts: 3 },
   ];
 
   const plantSelectGames: GameType[] = ['puzzle', 'poem', 'quiz', 'coloring'];
@@ -75,6 +75,9 @@ const GamesPage = () => {
       <div className="bg-gradient-to-br from-sun-light to-petal-light pt-10 pb-14 px-4 rounded-b-[3rem] text-center">
         <h1 className="text-2xl font-bold text-foreground mb-1">🎮 趣味游戏</h1>
         <p className="text-sm text-muted-foreground">边玩边学，探索植物奥秘</p>
+        <div className="flex items-center justify-center gap-1 mt-2 bg-sun text-primary-foreground px-3 py-1 rounded-full text-xs font-bold w-fit mx-auto">
+          <Coins size={14} /> 积分：{points}
+        </div>
       </div>
 
       <div className="px-4 -mt-8 space-y-4">
@@ -97,9 +100,9 @@ const GamesPage = () => {
                     <h3 className="font-bold text-foreground">{g.name}</h3>
                     <p className="text-xs text-muted-foreground">{g.desc}</p>
                   </div>
-                  {g.needsPlant && (
-                    <span className="text-[9px] bg-sun-light text-sun px-2 py-0.5 rounded-full font-bold">可解锁种子</span>
-                  )}
+                  <span className="text-[9px] bg-sun-light text-sun px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+                    <Coins size={8} /> +{g.pts}
+                  </span>
                 </motion.button>
               ))}
             </motion.div>

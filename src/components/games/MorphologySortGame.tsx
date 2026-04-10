@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
-import { RotateCcw, CheckCircle } from 'lucide-react';
+import { RotateCcw, CheckCircle, Coins } from 'lucide-react';
 
 type SortMode = 'rootType' | 'leafShape' | 'family';
 
@@ -12,12 +12,13 @@ const modeLabels: Record<SortMode, { label: string; emoji: string }> = {
 };
 
 const MorphologySortGame = () => {
-  const { getAllPlants, incrementGame } = useSeedVerse();
+  const { getAllPlants, incrementGame, addPoints } = useSeedVerse();
   const allPlants = getAllPlants();
   const [mode, setMode] = useState<SortMode>('rootType');
   const [dragItem, setDragItem] = useState<string | null>(null);
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
+  const [rewarded, setRewarded] = useState(false);
 
   const { categories, items, getAnswer } = useMemo(() => {
     const getter = (p: any): string => {
@@ -30,121 +31,80 @@ const MorphologySortGame = () => {
     return { categories: cats, items: plantItems, getAnswer: getter };
   }, [allPlants, mode]);
 
-  const handleDrop = (plantId: string, cat: string) => {
-    setPlacements(prev => ({ ...prev, [plantId]: cat }));
-    setDragItem(null);
-  };
-
-  const checkAnswers = () => {
+  const handleCheck = () => {
     setChecked(true);
     const allCorrect = items.every(p => placements[p.id] === getAnswer(p));
-    if (allCorrect) incrementGame();
+    if (allCorrect) {
+      incrementGame();
+      if (!rewarded) { addPoints(1); setRewarded(true); }
+    }
   };
 
-  const restart = (newMode?: SortMode) => {
-    setPlacements({});
-    setChecked(false);
-    if (newMode) setMode(newMode);
-  };
-
-  const unplaced = items.filter(p => !placements[p.id]);
-  const correctCount = items.filter(p => placements[p.id] === getAnswer(p)).length;
+  const allCorrect = checked && items.every(p => placements[p.id] === getAnswer(p));
 
   return (
-    <div className="card-nature p-4 space-y-4">
+    <div className="space-y-4">
       <h3 className="font-bold text-foreground text-center">🔬 形态分类挑战</h3>
-
-      {/* Mode selector */}
-      <div className="flex gap-1.5 justify-center">
+      <div className="flex gap-2 justify-center">
         {(Object.keys(modeLabels) as SortMode[]).map(m => (
-          <button
-            key={m}
-            onClick={() => restart(m)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-              mode === m ? 'bg-leaf text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
+          <button key={m} onClick={() => { setMode(m); setPlacements({}); setChecked(false); setRewarded(false); }}
+            className={`text-xs px-3 py-1 rounded-full font-bold ${mode === m ? 'bg-leaf text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
             {modeLabels[m].emoji} {modeLabels[m].label}
           </button>
         ))}
       </div>
 
-      <p className="text-xs text-muted-foreground text-center">
-        {mode === 'rootType' && '将植物拖放到正确的根系类型中（直根系/须根系等）'}
-        {mode === 'leafShape' && '将植物拖放到正确的叶形分类中'}
-        {mode === 'family' && '将植物拖放到正确的科属中'}
-      </p>
+      {allCorrect && (
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-center">
+          <p className="text-2xl">🎉</p>
+          <p className="font-bold text-leaf">全部正确！</p>
+          <p className="text-xs text-sun flex items-center justify-center gap-1"><Coins size={14} /> +1 积分</p>
+        </motion.div>
+      )}
 
-      {/* Unplaced items */}
-      <div className="flex flex-wrap gap-2 justify-center min-h-[40px]">
-        {unplaced.map(plant => (
-          <motion.button
-            key={plant.id}
-            whileTap={{ scale: 0.9 }}
+      <div className="flex flex-wrap gap-2 justify-center">
+        {items.filter(p => !placements[p.id]).map(plant => (
+          <motion.button key={plant.id} whileTap={{ scale: 0.9 }}
             onClick={() => setDragItem(dragItem === plant.id ? null : plant.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 ${
-              dragItem === plant.id ? 'bg-sun ring-2 ring-sun/50 text-secondary-foreground' : 'bg-leaf-light text-foreground'
-            }`}
-          >
-            <span>{plant.emoji}</span> {plant.name}
+            className={`card-nature px-3 py-2 flex items-center gap-1 text-xs ${dragItem === plant.id ? 'ring-2 ring-leaf' : ''}`}>
+            <span>{plant.emoji}</span>
+            <span className="font-bold text-foreground">{plant.name}</span>
           </motion.button>
         ))}
       </div>
 
-      {/* Category bins */}
       <div className="grid grid-cols-2 gap-2">
         {categories.map(cat => {
           const placed = items.filter(p => placements[p.id] === cat);
           return (
-            <motion.div
-              key={cat}
-              onClick={() => { if (dragItem && !checked) handleDrop(dragItem, cat); }}
-              className={`rounded-xl border-2 border-dashed p-2 min-h-[80px] ${
-                dragItem ? 'border-sun bg-sun-light/30 cursor-pointer' : 'border-border'
-              }`}
-            >
-              <p className="text-[10px] font-bold text-muted-foreground text-center mb-1">{cat}</p>
-              <div className="flex flex-wrap gap-1 justify-center">
-                {placed.map(plant => (
-                  <span
-                    key={plant.id}
-                    className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
-                      checked
-                        ? getAnswer(plant) === cat
-                          ? 'bg-leaf-light text-leaf'
-                          : 'bg-destructive/10 text-destructive line-through'
-                        : 'bg-sky-light text-foreground'
-                    }`}
-                  >
-                    {plant.emoji} {plant.name}
+            <div key={cat}
+              onClick={() => { if (dragItem) { setPlacements(prev => ({ ...prev, [dragItem]: cat })); setDragItem(null); } }}
+              className={`card-nature p-3 min-h-[70px] ${dragItem ? 'border-2 border-dashed border-leaf cursor-pointer' : ''}`}>
+              <p className="text-xs font-bold text-foreground mb-1">{cat}</p>
+              <div className="flex flex-wrap gap-1">
+                {placed.map(p => (
+                  <span key={p.id} className={`text-[10px] px-1 py-0.5 rounded-full ${
+                    checked ? (getAnswer(p) === cat ? 'bg-leaf-light text-leaf' : 'bg-destructive/20 text-destructive') : 'bg-muted text-foreground'
+                  }`}>
+                    {p.emoji} {p.name}
+                    {checked && getAnswer(p) === cat && <CheckCircle size={8} className="inline ml-0.5" />}
                   </span>
                 ))}
               </div>
-            </motion.div>
+            </div>
           );
         })}
       </div>
 
-      {!checked ? (
-        <button
-          onClick={checkAnswers}
-          disabled={Object.keys(placements).length < items.length}
-          className={`w-full btn-nature text-sm ${Object.keys(placements).length < items.length ? 'opacity-50' : ''}`}
-        >
-          ✅ 检查答案
+      <div className="flex gap-2 justify-center">
+        {!checked && Object.keys(placements).length === items.length && (
+          <button onClick={handleCheck} className="btn-nature text-sm">检查答案</button>
+        )}
+        <button onClick={() => { setPlacements({}); setChecked(false); setRewarded(false); }}
+          className="text-xs text-muted-foreground flex items-center gap-1">
+          <RotateCcw size={12} /> 重新开始
         </button>
-      ) : (
-        <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <CheckCircle size={20} className="text-leaf" />
-            <span className="font-bold text-foreground">{correctCount}/{items.length} 正确</span>
-          </div>
-          {correctCount === items.length && <p className="text-2xl">🎉 全对！太厉害了！</p>}
-          <button onClick={() => restart()} className="btn-sun text-sm">
-            <RotateCcw size={14} className="inline mr-1" /> 再来一局
-          </button>
-        </motion.div>
-      )}
+      </div>
     </div>
   );
 };

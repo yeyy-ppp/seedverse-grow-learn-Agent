@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { achievements, Plant } from '@/data/plants';
-import { Trophy, BookOpen, Gamepad2, Sprout, ArrowLeft, ChevronRight, LogOut, LogIn } from 'lucide-react';
+import { Trophy, BookOpen, Gamepad2, Sprout, ArrowLeft, ChevronRight, LogOut, LogIn, Coins } from 'lucide-react';
 import PlantDetailView from '@/components/identify/PlantDetailView';
 
 type ReviewMode = null | 'seeds' | 'quiz' | 'games';
 
 const ProfilePage = () => {
-  const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed, getPlantById } = useSeedVerse();
+  const { collectedSeeds, quizCount, gameCount, getAllPlants, getSeed, getPlantById, points, collectedCards } = useSeedVerse();
   const { user, profile, signOut, loading } = useAuth();
   const allPlants = getAllPlants();
   const navigate = useNavigate();
@@ -136,6 +136,10 @@ const ProfilePage = () => {
         ) : (
           <p className="text-xs text-muted-foreground">探索植物世界的旅程才刚开始</p>
         )}
+        {/* Points display */}
+        <div className="flex items-center justify-center gap-1 mt-2 bg-sun text-primary-foreground px-3 py-1 rounded-full text-xs font-bold w-fit mx-auto">
+          <Coins size={14} /> 积分：{points}
+        </div>
         <div className="flex justify-center gap-2 mt-3">
           {user ? (
             <button onClick={signOut} className="flex items-center gap-1 bg-destructive/10 text-destructive px-4 py-1.5 rounded-full text-xs font-bold">
@@ -160,6 +164,16 @@ const ProfilePage = () => {
               <p className="text-[8px] text-primary mt-0.5">点击查看 →</p>
             </motion.button>
           ))}
+        </div>
+
+        {/* Flower Cards count */}
+        <div className="card-nature p-4 flex items-center gap-3">
+          <span className="text-3xl">🌸</span>
+          <div className="flex-1">
+            <h3 className="font-bold text-foreground text-sm">花卡收集</h3>
+            <p className="text-[10px] text-muted-foreground">在花园中收集开花植物的精美花卡</p>
+          </div>
+          <span className="text-xl font-bold text-petal">{collectedCards.length}</span>
         </div>
 
         <div className="card-nature p-4 space-y-3">

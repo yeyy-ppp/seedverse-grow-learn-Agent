@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
-import { Timer, RotateCcw, Zap } from 'lucide-react';
+import { Timer, RotateCcw, Zap, Coins } from 'lucide-react';
 
 const ROUND_TIME = 10; // seconds per round
 const TOTAL_ROUNDS = 5;
 
 const SpeedIdentifyGame = () => {
-  const { getAllPlants, incrementGame } = useSeedVerse();
+  const { getAllPlants, incrementGame, addPoints } = useSeedVerse();
   const allPlants = getAllPlants();
 
   const rounds = useMemo(() => {
@@ -58,6 +58,7 @@ const SpeedIdentifyGame = () => {
       if (round + 1 >= TOTAL_ROUNDS) {
         setFinished(true);
         incrementGame();
+        addPoints(3);
       } else {
         setRound(r => r + 1);
         setSelected(null);
@@ -95,6 +96,7 @@ const SpeedIdentifyGame = () => {
         <span className="text-5xl block">⚡</span>
         <h3 className="font-bold text-lg text-foreground">挑战完成！</h3>
         <p className="text-3xl font-bold text-sun">{score} 分</p>
+        <p className="text-xs text-sun flex items-center justify-center gap-1"><Coins size={14} /> +3 积分</p>
         <p className="text-xs text-muted-foreground">速度越快，得分越高</p>
         <button onClick={restart} className="btn-sun text-sm">
           <RotateCcw size={14} className="inline mr-1" /> 再来一局

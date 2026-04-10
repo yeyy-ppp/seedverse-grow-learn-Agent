@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Coins } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PlantDetailView from '@/components/identify/PlantDetailView';
+import { toast } from 'sonner';
 
 type FilterMode = 'collected' | 'total' | 'undiscovered';
 
@@ -13,7 +14,7 @@ const SeedAtlasPage = () => {
   const initialFilter = (searchParams.get('filter') as FilterMode) || 'collected';
   const [filter, setFilter] = useState<FilterMode>(initialFilter);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
-  const { collectedSeeds, getAllPlants, getSeed, markSeedViewed, gardenPlots } = useSeedVerse();
+  const { collectedSeeds, getAllPlants, getSeed, markSeedViewed, gardenPlots, points, redeemSeedWithPoints } = useSeedVerse();
 
   const allPlants = getAllPlants();
 
@@ -44,6 +45,14 @@ const SeedAtlasPage = () => {
     setSelectedPlant(plant);
   };
 
+  const handleRedeem = (plant: Plant) => {
+    if (redeemSeedWithPoints(plant.id)) {
+      toast.success(`🌱 成功兑换 ${plant.name} 种子！`, { description: '消耗 5 积分' });
+    } else if (points < 5) {
+      toast.error('积分不足', { description: '去玩游戏赚取更多积分吧！' });
+    }
+  };
+
   if (selectedPlant) {
     return <PlantDetailView plant={selectedPlant} onBack={() => setSelectedPlant(null)} showAll={true} />;
   }
@@ -56,6 +65,9 @@ const SeedAtlasPage = () => {
             <ArrowLeft size={18} className="text-foreground" />
           </Link>
           <h1 className="text-2xl font-bold text-foreground">🏷️ 种子图鉴</h1>
+          <div className="ml-auto flex items-center gap-1 bg-sun-light text-sun px-2.5 py-1 rounded-full text-xs font-bold">
+            <Coins size={14} /> {points}
+          </div>
         </div>
         <div className="flex gap-2">
           {filters.map(f => (
@@ -99,31 +111,51 @@ const SeedAtlasPage = () => {
                 const gardenPlot = gardenPlots.find(gp => gp.plantId === plant.id);
 
                 return (
-                  <motion.button
+                  <motion.div
                     key={plant.id}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.03 }}
-                    onClick={() => handlePlantClick(plant as Plant)}
-                    disabled={!isCollected}
                     className={`card-nature p-3 flex flex-col items-center gap-1 relative transition-all ${
-                      isCollected ? 'cursor-pointer' : 'opacity-40 grayscale cursor-not-allowed'
+                      isCollected ? 'cursor-pointer' : 'opacity-60'
                     }`}
                   >
                     {isNew && (
                       <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-destructive animate-pulse" />
                     )}
-                    <span className={`text-3xl ${isCollected ? '' : 'blur-[2px]'}`}>
-                      {isCollected ? plant.emoji : '❓'}
-                    </span>
-                    <span className={`text-[10px] font-bold truncate w-full text-center ${
-                      isCollected ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
-                      {isCollected ? plant.name : '???'}
-                    </span>
-                    <span className="text-[8px] text-muted-foreground">
-                      {isCollected ? plant.category : '未收集'}
-                    </span>
+                    <button
+                      onClick={() => isCollected ? handlePlantClick(plant as Plant) : undefined}
+                      disabled={!isCollected}
+                      className="flex flex-col items-center gap-1 w-full"
+                    >
+                      <span className={`text-3xl ${isCollected ? '' : 'grayscale blur-[2px]'}`}>
+                        {isCollected ? plant.emoji : '❓'}
+                      </span>
+                      <span className={`text-[10px] font-bold truncate w-full text-center ${
+                        isCollected ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {isCollected ? plant.name : '???'}
+                      </span>
+                      <span className="text-[8px] text-muted-foreground">
+                        {isCollected ? plant.category : '未收集'}
+                      </span>
+                    </button>
+                    
+                    {/* Redeem with points button for uncollected */}
+                    {!isCollected && (
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleRedeem(plant as Plant)}
+                        className={`flex items-center gap-0.5 text-[8px] font-bold px-2 py-1 rounded-full mt-0.5 ${
+                          points >= 5
+                            ? 'bg-sun text-primary-foreground'
+                            : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        <Coins size={8} /> 5分兑换
+                      </motion.button>
+                    )}
+                    
                     {/* Growth sync from garden */}
                     {gardenPlot && (
                       <div className="w-full mt-0.5">
@@ -132,7 +164,7 @@ const SeedAtlasPage = () => {
                         </div>
                       </div>
                     )}
-                  </motion.button>
+                  </motion.div>
                 );
               })
             )}

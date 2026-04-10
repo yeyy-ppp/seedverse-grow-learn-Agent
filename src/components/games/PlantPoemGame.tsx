@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plant } from '@/data/plants';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
+import { Coins } from 'lucide-react';
 import { RotateCcw } from 'lucide-react';
 
 interface Props {
@@ -40,7 +41,7 @@ const generatePoemQuestions = (plant: Plant) => {
 };
 
 const PlantPoemGame = ({ plant, onBack }: Props) => {
-  const { incrementGame, collectSeed, getSeed } = useSeedVerse();
+  const { incrementGame, collectSeed, getSeed, addPoints } = useSeedVerse();
   const alreadyCollected = !!getSeed(plant.id);
 
   const questions = useMemo(() => generatePoemQuestions(plant), [plant]);
@@ -72,6 +73,7 @@ const PlantPoemGame = ({ plant, onBack }: Props) => {
       } else {
         setDone(true);
         incrementGame();
+        addPoints(2);
         if (!alreadyCollected) collectSeed(plant.id);
       }
     }, 1000);
@@ -117,6 +119,7 @@ const PlantPoemGame = ({ plant, onBack }: Props) => {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-center space-y-3">
           <p className="text-3xl">🏆</p>
           <p className="font-bold text-foreground">得分：{score} / {questions.length}</p>
+          <p className="text-xs text-sun flex items-center justify-center gap-1"><Coins size={14} /> +2 积分</p>
           {!alreadyCollected && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-leaf font-bold">
               🌱 解锁了新种子：{plant.name}！

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Coins } from 'lucide-react';
 
 interface Props {
   plant: Plant;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const PlantQuizGame = ({ plant, onBack }: Props) => {
-  const { incrementQuiz, collectSeed, getSeed } = useSeedVerse();
+  const { incrementQuiz, collectSeed, getSeed, addPoints } = useSeedVerse();
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
@@ -32,6 +32,7 @@ const PlantQuizGame = ({ plant, onBack }: Props) => {
       } else {
         setFinished(true);
         incrementQuiz();
+        addPoints(2);
         if (!getSeed(plant.id) && score + (correct ? 1 : 0) >= Math.ceil(quiz.length * 0.6)) {
           collectSeed(plant.id);
         }
@@ -57,6 +58,7 @@ const PlantQuizGame = ({ plant, onBack }: Props) => {
         <p className="text-sm text-muted-foreground">
           答对 <span className="font-bold text-leaf">{score}</span> / {quiz.length} 题
         </p>
+        <p className="text-xs text-sun flex items-center justify-center gap-1"><Coins size={14} /> +2 积分</p>
         {passed && !getSeed(plant.id) && (
           <div className="bg-leaf-light rounded-xl p-3">
             <p className="text-xs font-bold text-leaf">🌱 恭喜！已解锁{plant.name}种子！</p>

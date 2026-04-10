@@ -27,7 +27,7 @@ interface Props {
 }
 
 const SlidingPuzzle = ({ plant, onBack }: Props) => {
-  const { collectSeed, incrementGame, getSeed } = useSeedVerse();
+  const { collectSeed, incrementGame, getSeed, addPoints } = useSeedVerse();
   const alreadyCollected = !!getSeed(plant.id);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageData, setImageData] = useState<string | null>(null);
@@ -129,6 +129,7 @@ const SlidingPuzzle = ({ plant, onBack }: Props) => {
       if (win) {
         setCompleted(true);
         incrementGame();
+        addPoints(3);
         if (!alreadyCollected) collectSeed(plant.id);
       }
       return next;

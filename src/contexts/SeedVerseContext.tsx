@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { SeedCard, plants, Plant } from '@/data/plants';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface CustomPlant {
   id: string;
@@ -32,12 +33,23 @@ export interface GardenPlot {
   lastWatered: number;
 }
 
+export interface CollectedCard {
+  id?: string;
+  plantId: string;
+  plantName: string;
+  plantEmoji: string;
+  collectedAt: string;
+}
+
 interface SeedVerseState {
   collectedSeeds: SeedCardWithNew[];
   customPlants: CustomPlant[];
   quizCount: number;
   gameCount: number;
   gardenPlots: GardenPlot[];
+  points: number;
+  unlockedPots: number;
+  collectedCards: CollectedCard[];
   collectSeed: (plantId: string) => void;
   addCustomPlant: (plant: CustomPlant) => void;
   growSeed: (plantId: string) => void;
@@ -52,6 +64,11 @@ interface SeedVerseState {
   fertilizePlot: (plotId: number) => void;
   plantSeedInPlot: (plotId: number, plantId: string) => void;
   removePlotPlant: (plotId: number) => void;
+  addPoints: (amount: number) => void;
+  spendPoints: (amount: number) => boolean;
+  buyPot: () => boolean;
+  collectCard: (plantId: string, plantName: string, plantEmoji: string) => void;
+  redeemSeedWithPoints: (plantId: string) => boolean;
 }
 
 const SeedVerseContext = createContext<SeedVerseState | null>(null);
@@ -72,12 +89,28 @@ const createInitialPlots = (): GardenPlot[] =>
     lastWatered: Date.now(),
   }));
 
+// Sync points to DB
+const syncPointsToDB = async (points: number) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('profiles').update({ points } as any).eq('user_id', user.id);
+};
+
+const syncPotsToDB = async (unlocked_pots: number) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('profiles').update({ unlocked_pots } as any).eq('user_id', user.id);
+};
+
 export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
   const [collectedSeeds, setCollectedSeeds] = useState<SeedCardWithNew[]>([]);
   const [customPlants, setCustomPlants] = useState<CustomPlant[]>([]);
   const [quizCount, setQuizCount] = useState(0);
   const [gameCount, setGameCount] = useState(0);
   const [gardenPlots, setGardenPlots] = useState<GardenPlot[]>(createInitialPlots);
+  const [points, setPoints] = useState(0);
+  const [unlockedPots, setUnlockedPots] = useState(6);
+  const [collectedCards, setCollectedCards] = useState<CollectedCard[]>([]);
 
   const getAllPlants = useCallback((): Plant[] => {
     return [...plants, ...customPlants as Plant[]];
@@ -166,6 +199,95 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
     ));
   }, []);
 
+  const addPoints = useCallback((amount: number) => {
+    setPoints(prev => {
+      const next = prev + amount;
+      syncPointsToDB(next);
+      return next;
+    });
+  }, []);
+
+  const spendPoints = useCallback((amount: number): boolean => {
+    let success = false;
+    setPoints(prev => {
+      if (prev >= amount) {
+        const next = prev - amount;
+        syncPointsToDB(next);
+        success = true;
+        return next;
+      }
+      return prev;
+    });
+    return success;
+  }, []);
+
+  const buyPot = useCallback((): boolean => {
+    let success = false;
+    setPoints(prev => {
+      if (prev >= 5) {
+        const newPoints = prev - 5;
+        syncPointsToDB(newPoints);
+        setUnlockedPots(prevPots => {
+          const newPots = prevPots + 1;
+          syncPotsToDB(newPots);
+          // Add a new plot
+          setGardenPlots(prevPlots => [...prevPlots, {
+            id: prevPlots.length,
+            plantId: null,
+            growthProgress: 0,
+            waterLevel: 50,
+            fertilized: false,
+            lastWatered: Date.now(),
+          }]);
+          return newPots;
+        });
+        success = true;
+        return newPoints;
+      }
+      return prev;
+    });
+    return success;
+  }, []);
+
+  const collectCard = useCallback((plantId: string, plantName: string, plantEmoji: string) => {
+    setCollectedCards(prev => {
+      if (prev.find(c => c.plantId === plantId)) return prev;
+      const card: CollectedCard = {
+        plantId,
+        plantName,
+        plantEmoji,
+        collectedAt: new Date().toISOString(),
+      };
+      // Save to DB
+      (async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('collected_cards').insert({
+            user_id: user.id,
+            plant_id: plantId,
+            plant_name: plantName,
+            plant_emoji: plantEmoji,
+          } as any);
+        }
+      })();
+      return [...prev, card];
+    });
+  }, []);
+
+  const redeemSeedWithPoints = useCallback((plantId: string): boolean => {
+    const alreadyCollected = collectedSeeds.find(s => s.plantId === plantId);
+    if (alreadyCollected) return false;
+    if (points < 5) return false;
+
+    setPoints(prev => {
+      const next = prev - 5;
+      syncPointsToDB(next);
+      return next;
+    });
+    collectSeed(plantId);
+    return true;
+  }, [collectedSeeds, points, collectSeed]);
+
   const incrementQuiz = useCallback(() => setQuizCount(c => c + 1), []);
   const incrementGame = useCallback(() => setGameCount(c => c + 1), []);
   const getSeed = useCallback((plantId: string) => collectedSeeds.find(s => s.plantId === plantId), [collectedSeeds]);
@@ -173,9 +295,11 @@ export const SeedVerseProvider = ({ children }: { children: ReactNode }) => {
   return (
     <SeedVerseContext.Provider value={{
       collectedSeeds, customPlants, quizCount, gameCount, gardenPlots,
+      points, unlockedPots, collectedCards,
       collectSeed, addCustomPlant, growSeed, incrementQuiz, incrementGame, getSeed,
       getAllPlants, getPlantById, markSeedViewed,
       setGardenPlots, waterPlot, fertilizePlot, plantSeedInPlot, removePlotPlant,
+      addPoints, spendPoints, buyPot, collectCard, redeemSeedWithPoints,
     }}>
       {children}
     </SeedVerseContext.Provider>

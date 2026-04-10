@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeedVerse, GardenPlot } from '@/contexts/SeedVerseContext';
 import { Plant } from '@/data/plants';
-import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X, CloudDrizzle, CloudHail, CloudFog } from 'lucide-react';
+import { Droplets, Sun, CloudRain, Cloud, Snowflake, Wind, X, CloudDrizzle, CloudHail, CloudFog, Plus, Coins, Flower2, ShoppingBag } from 'lucide-react';
 import GardenWeatherEffects from './GardenWeatherEffects';
 import GardenPlotCard from './GardenPlotCard';
 import PlantInfoModal from './PlantInfoModal';
@@ -70,47 +70,44 @@ const weatherBySeason: Record<Season, Weather[]> = {
   winter: ['cloudy', 'snowy', 'snowy', 'windy', 'sleet', 'foggy'],
 };
 
-// One full seasonal cycle = 12 hours real time → 2 cycles per day
-// Each season = 3 hours, each solar term = 30 minutes
-const CYCLE_MS = 12 * 60 * 60 * 1000; // 12 hours in ms
+const CYCLE_MS = 12 * 60 * 60 * 1000;
 
-/** Get time-based state from real clock — never resets on navigation */
 function getTimeState() {
   const now = Date.now();
-  const cyclePos = (now % CYCLE_MS) / CYCLE_MS; // 0..1 position in current cycle
+  const cyclePos = (now % CYCLE_MS) / CYCLE_MS;
   const percent = cyclePos * 100;
-
   const seasons: Season[] = ['spring', 'summer', 'autumn', 'winter'];
   const seasonIndex = Math.floor(cyclePos * 4) % 4;
   const season = seasons[seasonIndex];
-
   const termIndex = Math.floor(cyclePos * 24) % 24;
   const solarTerm = solarTerms[termIndex];
-
-  // Day/night based on real hour
   const hour = new Date().getHours();
   const isNight = hour < 6 || hour >= 19;
-
-  // Deterministic weather from 15-minute blocks
   const weatherBlock = Math.floor(now / (15 * 60 * 1000));
   const options = weatherBySeason[season];
   const weatherIndex = weatherBlock % options.length;
   const weather: Weather = isNight && options[weatherIndex] === 'sunny' ? 'cloudy' : options[weatherIndex];
-
   return { season, solarTerm, weather, percent, isNight };
 }
 
+// Flowering stage index (usually stage 3 out of 5)
+const FLOWERING_STAGE = 3;
+
 const GardenSimulation = () => {
-  const { collectedSeeds, getPlantById, growSeed, gardenPlots, setGardenPlots, waterPlot, fertilizePlot, plantSeedInPlot, removePlotPlant } = useSeedVerse();
+  const {
+    collectedSeeds, getPlantById, growSeed, gardenPlots, setGardenPlots,
+    waterPlot, fertilizePlot, plantSeedInPlot, removePlotPlant,
+    points, buyPot, collectCard, collectedCards,
+  } = useSeedVerse();
   const collectedPlants = collectedSeeds.map(s => getPlantById(s.plantId)).filter(Boolean) as Plant[];
 
   const [timeState, setTimeState] = useState(getTimeState);
   const [showPlantPicker, setShowPlantPicker] = useState<number | null>(null);
   const [selectedPlot, setSelectedPlot] = useState<number | null>(null);
+  const [showBuyPot, setShowBuyPot] = useState(false);
 
   const { season, solarTerm, weather, percent, isNight } = timeState;
 
-  // Update time state every second
   useEffect(() => {
     const interval = setInterval(() => setTimeState(getTimeState()), 1000);
     return () => clearInterval(interval);
@@ -165,6 +162,21 @@ const GardenSimulation = () => {
     if (!plant) return null;
     const stageIndex = Math.min(plant.stages.length - 1, Math.floor((plot.growthProgress / 100) * plant.stages.length));
     return { plant, stage: plant.stages[stageIndex], stageIndex };
+  };
+
+  const isFlowering = (plot: GardenPlot) => {
+    const visual = getPlantVisual(plot);
+    if (!visual) return false;
+    return visual.stageIndex >= FLOWERING_STAGE && visual.stageIndex < visual.plant.stages.length - 1;
+  };
+
+  const isCardCollected = (plantId: string) => collectedCards.some(c => c.plantId === plantId);
+
+  const handleCollectCard = (plot: GardenPlot) => {
+    if (!plot.plantId) return;
+    const plant = getPlantById(plot.plantId);
+    if (!plant) return;
+    collectCard(plot.plantId, plant.name, plant.emoji);
   };
 
   const WeatherIcon = weatherInfo[weather].icon;
@@ -222,20 +234,112 @@ const GardenSimulation = () => {
         </div>
       </div>
 
-      {/* Garden Plots */}
-      <div className="grid grid-cols-3 gap-3">
-        {gardenPlots.map(plot => (
-          <GardenPlotCard
-            key={plot.id}
-            plot={plot}
-            visual={getPlantVisual(plot)}
-            weather={weather}
-            onPlotClick={() => plot.plantId ? setSelectedPlot(plot.id) : setShowPlantPicker(plot.id)}
-            onWater={() => waterPlot(plot.id)}
-            onFertilize={() => fertilizePlot(plot.id)}
-          />
-        ))}
+      {/* Flower Shelf - horizontal scrollable */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-foreground text-sm flex items-center gap-1">
+            🌷 花架展示
+          </h3>
+          <button
+            onClick={() => setShowBuyPot(true)}
+            className="flex items-center gap-1 text-[10px] font-bold bg-sun-light text-sun px-2 py-1 rounded-full"
+          >
+            <ShoppingBag size={10} /> 购买花盆
+          </button>
+        </div>
+
+        {/* Shelf visual - wooden shelf with pots */}
+        <div className="relative">
+          <div className="overflow-x-auto pb-2 -mx-1 px-1">
+            <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
+              {gardenPlots.map(plot => {
+                const visual = getPlantVisual(plot);
+                const flowering = isFlowering(plot);
+                const cardAlreadyCollected = plot.plantId ? isCardCollected(plot.plantId) : false;
+
+                return (
+                  <div key={plot.id} className="flex flex-col items-center" style={{ width: 100 }}>
+                    <GardenPlotCard
+                      plot={plot}
+                      visual={visual}
+                      weather={weather}
+                      onPlotClick={() => plot.plantId ? setSelectedPlot(plot.id) : setShowPlantPicker(plot.id)}
+                      onWater={() => waterPlot(plot.id)}
+                      onFertilize={() => fertilizePlot(plot.id)}
+                    />
+                    {/* Collect card button when flowering */}
+                    {flowering && plot.plantId && !cardAlreadyCollected && (
+                      <motion.button
+                        initial={{ scale: 0 }}
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        onClick={() => handleCollectCard(plot)}
+                        className="mt-1 flex items-center gap-0.5 bg-petal text-primary-foreground px-2 py-1 rounded-full text-[9px] font-bold shadow-md"
+                      >
+                        <Flower2 size={10} /> 收集花卡
+                      </motion.button>
+                    )}
+                    {cardAlreadyCollected && flowering && (
+                      <span className="mt-1 text-[8px] text-petal font-bold">✅ 已收集</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Shelf board */}
+          <div className="h-2 bg-gradient-to-r from-fruit/40 via-fruit/60 to-fruit/40 rounded-full mt-1" />
+          <div className="h-1 bg-gradient-to-r from-fruit/20 via-fruit/30 to-fruit/20 rounded-full mt-0.5" />
+        </div>
       </div>
+
+      {/* Buy pot modal */}
+      <AnimatePresence>
+        {showBuyPot && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-foreground/30 flex items-center justify-center p-4"
+            onClick={() => setShowBuyPot(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-xs bg-background rounded-3xl p-5 space-y-4 text-center"
+            >
+              <h3 className="font-bold text-foreground">🪴 购买新花盆</h3>
+              <p className="text-sm text-muted-foreground">每个花盆需要 5 积分</p>
+              <div className="flex items-center justify-center gap-2">
+                <Coins size={20} className="text-sun" />
+                <span className="text-2xl font-bold text-sun">{points}</span>
+                <span className="text-sm text-muted-foreground">积分</span>
+              </div>
+              <p className="text-xs text-muted-foreground">当前花盆数：{gardenPlots.length}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    buyPot();
+                    setShowBuyPot(false);
+                  }}
+                  disabled={points < 5}
+                  className={`flex-1 btn-nature text-sm ${points < 5 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  🪴 购买 (5积分)
+                </button>
+                <button onClick={() => setShowBuyPot(false)} className="flex-1 text-sm text-muted-foreground border border-border rounded-xl py-2">
+                  取消
+                </button>
+              </div>
+              {points < 5 && (
+                <p className="text-[10px] text-destructive">积分不足，去玩游戏赚取积分吧！</p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Plant picker modal */}
       <AnimatePresence>

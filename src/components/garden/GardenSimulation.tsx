@@ -101,7 +101,7 @@ const GardenSimulation = () => {
   } = useSeedVerse();
 
   // Insect visibility (shared with inline insects)
-  const showInsectsBase = new Date().getHours() >= 6 && new Date().getHours() < 19;
+  const showInsectsBase = true; // will be refined after timeState
   const collectedPlants = collectedSeeds.map(s => getPlantById(s.plantId)).filter(Boolean) as Plant[];
 
   const [timeState, setTimeState] = useState(getTimeState);

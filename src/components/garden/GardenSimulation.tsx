@@ -99,6 +99,9 @@ const GardenSimulation = () => {
     waterPlot, fertilizePlot, plantSeedInPlot, removePlotPlant,
     points, buyPot, collectCard, collectedCards,
   } = useSeedVerse();
+
+  // Insect visibility (shared with inline insects)
+  const showInsectsBase = new Date().getHours() >= 6 && new Date().getHours() < 19;
   const collectedPlants = collectedSeeds.map(s => getPlantById(s.plantId)).filter(Boolean) as Plant[];
 
   const [timeState, setTimeState] = useState(getTimeState);
@@ -234,7 +237,7 @@ const GardenSimulation = () => {
         </div>
       </div>
 
-      {/* Flower Shelf - horizontal scrollable */}
+      {/* Garden Grid Display */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-foreground text-sm flex items-center gap-1">
@@ -248,48 +251,64 @@ const GardenSimulation = () => {
           </button>
         </div>
 
-        {/* Shelf visual - wooden shelf with pots */}
-        <div className="relative">
-          <div className="overflow-x-auto pb-2 -mx-1 px-1">
-            <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
-              {gardenPlots.map(plot => {
-                const visual = getPlantVisual(plot);
-                const flowering = isFlowering(plot);
-                const cardAlreadyCollected = plot.plantId ? isCardCollected(plot.plantId) : false;
+        {/* Grid layout for pots */}
+        <div className="grid grid-cols-3 gap-3">
+          {gardenPlots.map(plot => {
+            const visual = getPlantVisual(plot);
+            const flowering = isFlowering(plot);
+            const cardAlreadyCollected = plot.plantId ? isCardCollected(plot.plantId) : false;
 
-                return (
-                  <div key={plot.id} className="flex flex-col items-center" style={{ width: 100 }}>
-                    <GardenPlotCard
-                      plot={plot}
-                      visual={visual}
-                      weather={weather}
-                      onPlotClick={() => plot.plantId ? setSelectedPlot(plot.id) : setShowPlantPicker(plot.id)}
-                      onWater={() => waterPlot(plot.id)}
-                      onFertilize={() => fertilizePlot(plot.id)}
-                    />
-                    {/* Collect card button when flowering */}
-                    {flowering && plot.plantId && !cardAlreadyCollected && (
-                      <motion.button
-                        initial={{ scale: 0 }}
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        onClick={() => handleCollectCard(plot)}
-                        className="mt-1 flex items-center gap-0.5 bg-petal text-primary-foreground px-2 py-1 rounded-full text-[9px] font-bold shadow-md"
-                      >
-                        <Flower2 size={10} /> 收集花卡
-                      </motion.button>
-                    )}
-                    {cardAlreadyCollected && flowering && (
-                      <span className="mt-1 text-[8px] text-petal font-bold">✅ 已收集</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          {/* Shelf board */}
-          <div className="h-2 bg-gradient-to-r from-fruit/40 via-fruit/60 to-fruit/40 rounded-full mt-1" />
-          <div className="h-1 bg-gradient-to-r from-fruit/20 via-fruit/30 to-fruit/20 rounded-full mt-0.5" />
+            return (
+              <div key={plot.id} className="flex flex-col items-center relative">
+                {/* Insect companions near planted pots */}
+                {visual && showInsects && plot.id % 3 === 0 && (
+                  <motion.span
+                    className="absolute -top-2 -right-1 text-sm z-20"
+                    animate={{ x: [0, 4, -3, 0], y: [0, -3, 2, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, delay: plot.id * 0.5 }}
+                  >🐝</motion.span>
+                )}
+                {visual && showInsects && plot.id % 4 === 1 && (
+                  <motion.span
+                    className="absolute -top-3 left-0 text-base z-20"
+                    animate={{ x: [-3, 5, -5, 3], y: [0, -4, 1, 0], rotate: [0, -8, 8, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, delay: plot.id * 0.7 }}
+                  >🦋</motion.span>
+                )}
+                {visual && showInsects && plot.id % 5 === 2 && (
+                  <motion.span
+                    className="absolute bottom-12 right-0 text-xs z-20"
+                    animate={{ x: [0, 3, -2, 0], y: [0, -2, 1, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, delay: plot.id * 1.2 }}
+                  >🐞</motion.span>
+                )}
+
+                <GardenPlotCard
+                  plot={plot}
+                  visual={visual}
+                  weather={weather}
+                  onPlotClick={() => plot.plantId ? setSelectedPlot(plot.id) : setShowPlantPicker(plot.id)}
+                  onWater={() => waterPlot(plot.id)}
+                  onFertilize={() => fertilizePlot(plot.id)}
+                />
+                {/* Collect card button when flowering */}
+                {flowering && plot.plantId && !cardAlreadyCollected && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    onClick={() => handleCollectCard(plot)}
+                    className="mt-1 flex items-center gap-0.5 bg-petal text-primary-foreground px-2 py-1 rounded-full text-[9px] font-bold shadow-md"
+                  >
+                    <Flower2 size={10} /> 收集花卡
+                  </motion.button>
+                )}
+                {cardAlreadyCollected && flowering && (
+                  <span className="mt-1 text-[8px] text-petal font-bold">✅ 已收集</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

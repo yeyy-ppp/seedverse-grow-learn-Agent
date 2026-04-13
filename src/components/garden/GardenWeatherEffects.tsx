@@ -9,8 +9,6 @@ interface Props {
 }
 
 const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
-  // All particles start from top (y: -20 or above) and fall/move downward
-
   const lightRainDrops = useMemo(() =>
     Array.from({ length: 60 }, (_, i) => ({
       id: i, x: Math.random() * 100, delay: Math.random() * 2, duration: 1.2 + Math.random() * 0.8,
@@ -66,94 +64,9 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
       duration: 0.7 + Math.random() * 0.7, isSnow: i % 3 === 0,
     })), []);
 
-  // Insect companions
-  const bees = useMemo(() =>
-    Array.from({ length: 3 }, (_, i) => ({
-      id: i,
-      startX: 10 + Math.random() * 80,
-      startY: -5 - Math.random() * 10,
-      endY: 60 + Math.random() * 30,
-      delay: i * 3 + Math.random() * 2,
-      duration: 8 + Math.random() * 6,
-    })), []);
-
-  const butterflies = useMemo(() =>
-    Array.from({ length: 2 }, (_, i) => ({
-      id: i,
-      startX: 20 + Math.random() * 60,
-      startY: -8 - Math.random() * 10,
-      endY: 50 + Math.random() * 40,
-      delay: i * 5 + Math.random() * 3,
-      duration: 12 + Math.random() * 8,
-    })), []);
-
-  const ladybugs = useMemo(() =>
-    Array.from({ length: 2 }, (_, i) => ({
-      id: i,
-      startX: 15 + Math.random() * 70,
-      startY: -3 - Math.random() * 8,
-      endY: 70 + Math.random() * 20,
-      delay: i * 7 + Math.random() * 4,
-      duration: 15 + Math.random() * 10,
-    })), []);
-
-  const showInsects = !isNight && !['heavy_rain', 'snowy', 'sleet'].includes(weather);
-
   return (
     <>
-      {/* ===== INSECT COMPANIONS - from top ===== */}
-      {showInsects && (
-        <>
-          {/* Bees */}
-          {bees.map(b => (
-            <motion.div
-              key={`bee-${b.id}`}
-              className="absolute text-lg"
-              style={{ left: `${b.startX}%`, zIndex: 15 }}
-              initial={{ top: `${b.startY}%`, opacity: 0 }}
-              animate={{
-                top: [`${b.startY}%`, `${b.endY * 0.3}%`, `${b.endY * 0.6}%`, `${b.endY}%`],
-                left: [`${b.startX}%`, `${b.startX + 15}%`, `${b.startX - 10}%`, `${b.startX + 5}%`],
-                opacity: [0, 1, 1, 0],
-              }}
-              transition={{ duration: b.duration, repeat: Infinity, delay: b.delay, ease: 'linear' }}
-            >🐝</motion.div>
-          ))}
-          {/* Butterflies */}
-          {butterflies.map(bf => (
-            <motion.div
-              key={`bf-${bf.id}`}
-              className="absolute text-xl"
-              style={{ left: `${bf.startX}%`, zIndex: 15 }}
-              initial={{ top: `${bf.startY}%`, opacity: 0 }}
-              animate={{
-                top: [`${bf.startY}%`, `${bf.endY * 0.4}%`, `${bf.endY * 0.7}%`, `${bf.endY}%`],
-                left: [`${bf.startX}%`, `${bf.startX - 20}%`, `${bf.startX + 25}%`, `${bf.startX}%`],
-                opacity: [0, 1, 1, 0],
-                rotate: [0, -10, 10, 0],
-              }}
-              transition={{ duration: bf.duration, repeat: Infinity, delay: bf.delay, ease: 'linear' }}
-            >🦋</motion.div>
-          ))}
-          {/* Ladybugs */}
-          {ladybugs.map(lb => (
-            <motion.div
-              key={`lb-${lb.id}`}
-              className="absolute text-sm"
-              style={{ left: `${lb.startX}%`, zIndex: 15 }}
-              initial={{ top: `${lb.startY}%`, opacity: 0 }}
-              animate={{
-                top: [`${lb.startY}%`, `${lb.endY * 0.5}%`, `${lb.endY}%`],
-                left: [`${lb.startX}%`, `${lb.startX + 8}%`, `${lb.startX - 5}%`],
-                opacity: [0, 1, 1, 0],
-              }}
-              transition={{ duration: lb.duration, repeat: Infinity, delay: lb.delay, ease: 'linear' }}
-            >🐞</motion.div>
-          ))}
-        </>
-      )}
-
-      {/* ===== NIGHT SKY ===== */}
+      {/* NIGHT SKY */}
       {isNight && weather !== 'heavy_rain' && (
         <>
           {stars.map(s => (
@@ -176,20 +89,10 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
             animate={{ opacity: [0.75, 1, 0.75] }}
             transition={{ duration: 4, repeat: Infinity }}
           >🌙</motion.div>
-          <motion.div
-            className="absolute w-1.5 h-1.5 rounded-full"
-            style={{
-              background: 'hsl(45, 90%, 85%)',
-              boxShadow: '0 0 12px 4px hsla(45, 90%, 85%, 0.8), -20px 0 30px 2px hsla(45, 90%, 85%, 0.3)',
-            }}
-            initial={{ left: '85%', top: '4%', opacity: 0 }}
-            animate={{ left: ['85%', '15%'], top: ['4%', '45%'], opacity: [0, 1, 0] }}
-            transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 12, delay: 3 }}
-          />
         </>
       )}
 
-      {/* ===== FOG - from top ===== */}
+      {/* FOG */}
       {weather === 'foggy' && fogClouds.map(f => (
         <motion.div
           key={`fog-${f.id}`}
@@ -207,7 +110,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         />
       ))}
 
-      {/* ===== LIGHT RAIN - from top ===== */}
+      {/* LIGHT RAIN */}
       {weather === 'light_rain' && lightRainDrops.map(p => (
         <motion.div
           key={`lr-${p.id}`}
@@ -225,7 +128,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         />
       ))}
 
-      {/* ===== RAINY - from top ===== */}
+      {/* RAINY */}
       {weather === 'rainy' && lightRainDrops.map(p => (
         <motion.div
           key={`rain-${p.id}`}
@@ -243,7 +146,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         />
       ))}
 
-      {/* ===== HEAVY RAIN - from top ===== */}
+      {/* HEAVY RAIN */}
       {weather === 'heavy_rain' && (
         <>
           {heavyRainDrops.map(p => (
@@ -262,12 +165,10 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
           ))}
           <div className="absolute bottom-0 left-0 right-0 h-32"
             style={{ background: 'linear-gradient(0deg, hsla(210,30%,70%,0.3), transparent)' }} />
-          <div className="absolute inset-0"
-            style={{ background: 'hsla(210,20%,50%,0.08)' }} />
         </>
       )}
 
-      {/* ===== SLEET - from top ===== */}
+      {/* SLEET */}
       {weather === 'sleet' && sleetDrops.map(p => (
         p.isSnow ? (
           <motion.div
@@ -294,7 +195,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         )
       ))}
 
-      {/* ===== SNOW - from top ===== */}
+      {/* SNOW */}
       {(weather === 'snowy' || (season === 'winter' && !['rainy', 'heavy_rain', 'sleet', 'foggy'].includes(weather) && weather !== 'windy')) && (
         snowFlakes.map(p => (
           <motion.div
@@ -308,7 +209,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         ))
       )}
 
-      {/* ===== AUTUMN LEAVES - from top ===== */}
+      {/* AUTUMN LEAVES */}
       {season === 'autumn' && !['heavy_rain', 'rainy'].includes(weather) && leaves.map(p => (
         <motion.div
           key={`leaf-${p.id}`}
@@ -327,7 +228,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         </motion.div>
       ))}
 
-      {/* ===== WIND - from top-left to right ===== */}
+      {/* WIND */}
       {weather === 'windy' && windStreaks.map(w => (
         <motion.div
           key={`wind-${w.id}`}
@@ -345,7 +246,7 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         />
       ))}
 
-      {/* ===== SUNNY RAYS - from top ===== */}
+      {/* SUNNY RAYS */}
       {weather === 'sunny' && !isNight && sunRays.map(r => (
         <motion.div
           key={`sun-${r.id}`}
@@ -360,13 +261,11 @@ const GardenWeatherEffects = ({ weather, season, isNight }: Props) => {
         />
       ))}
 
-      {/* ===== CLOUDY ===== */}
+      {/* CLOUDY */}
       {weather === 'cloudy' && !isNight && (
         <motion.div
           className="absolute top-0 left-0 right-0 h-2/5"
-          style={{
-            background: 'linear-gradient(180deg, hsla(210,15%,80%,0.4), transparent)',
-          }}
+          style={{ background: 'linear-gradient(180deg, hsla(210,15%,80%,0.4), transparent)' }}
           animate={{ opacity: [0.35, 0.55, 0.35] }}
           transition={{ duration: 6, repeat: Infinity }}
         />

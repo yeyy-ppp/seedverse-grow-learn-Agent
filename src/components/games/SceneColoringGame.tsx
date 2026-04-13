@@ -10,6 +10,8 @@ interface Props {
 }
 
 const RAINBOW_COLORS = [
+  { name: '黑', color: '#1F2937' },
+  { name: '白', color: '#F9FAFB' },
   { name: '红', color: '#EF4444' },
   { name: '橙', color: '#F97316' },
   { name: '黄', color: '#EAB308' },
@@ -17,6 +19,8 @@ const RAINBOW_COLORS = [
   { name: '青', color: '#06B6D4' },
   { name: '蓝', color: '#3B82F6' },
   { name: '紫', color: '#A855F7' },
+  { name: '粉', color: '#F472B6' },
+  { name: '棕', color: '#92400E' },
 ];
 
 // Generate SVG scene elements based on plant

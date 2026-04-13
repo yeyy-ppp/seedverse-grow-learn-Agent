@@ -110,6 +110,7 @@ const GardenSimulation = () => {
   const [showBuyPot, setShowBuyPot] = useState(false);
 
   const { season, solarTerm, weather, percent, isNight } = timeState;
+  const showInsects = !isNight && !['heavy_rain', 'snowy', 'sleet'].includes(weather);
 
   useEffect(() => {
     const interval = setInterval(() => setTimeState(getTimeState()), 1000);

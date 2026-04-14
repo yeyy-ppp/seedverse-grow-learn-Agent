@@ -30,12 +30,21 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
         style={{ aspectRatio: '1' }}
       >
         {/* Soil background */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-earth-light/30 to-earth-light/60" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-earth-light/20 to-earth-light/40" />
 
-        {/* Pot visual */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%]">
-          <div className="h-3 rounded-t-lg bg-gradient-to-r from-fruit/60 via-fruit/80 to-fruit/60" />
-          <div className="h-8 rounded-b-xl bg-gradient-to-b from-fruit/70 to-fruit/50" style={{ clipPath: 'polygon(5% 0, 95% 0, 85% 100%, 15% 100%)' }} />
+        {/* Realistic pot visual */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[75%]">
+          {/* Pot rim */}
+          <div className="h-2 rounded-t-sm bg-gradient-to-r from-[hsl(15,40%,55%)] via-[hsl(18,45%,60%)] to-[hsl(15,40%,55%)]" />
+          {/* Pot body - tapered trapezoid */}
+          <div
+            className="h-10 bg-gradient-to-b from-[hsl(18,42%,52%)] to-[hsl(15,35%,42%)]"
+            style={{ clipPath: 'polygon(8% 0, 92% 0, 82% 100%, 18% 100%)' }}
+          />
+          {/* Soil in pot */}
+          <div
+            className="absolute top-2 left-[12%] right-[12%] h-3 rounded-b-sm bg-gradient-to-b from-[hsl(25,30%,30%)] to-[hsl(25,25%,25%)]"
+          />
         </div>
 
         {plot.plantId && visual ? (
@@ -58,7 +67,7 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
             )}
 
             {/* Growth bar */}
-            <div className="absolute bottom-10 left-2 right-2">
+            <div className="absolute bottom-12 left-2 right-2">
               <div className="h-1.5 rounded-full bg-muted/50">
                 <div className="h-full rounded-full bg-leaf transition-all" style={{ width: `${plot.growthProgress}%` }} />
               </div>

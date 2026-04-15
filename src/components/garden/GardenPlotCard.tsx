@@ -26,14 +26,19 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
     >
       <div
         onClick={onPlotClick}
-        className="rounded-2xl overflow-hidden cursor-pointer relative bg-gradient-to-b from-card to-muted/30 border border-border/50 shadow-sm"
-        style={{ aspectRatio: '1' }}
+        className="rounded-2xl overflow-hidden cursor-pointer relative shadow-lg aspect-square"
+        style={{
+          background: plot.plantId ? 'linear-gradient(to bottom, #e8f5e9, #c8e6c9)' : 'linear-gradient(to bottom, #f5f0e8, #e8dfd0)',
+          border: '2px solid',
+          borderColor: plot.plantId ? '#81c784' : '#c4b99a',
+          minHeight: '100px',
+        }}
       >
         {plot.plantId && visual ? (
           <div className="relative z-10 flex flex-col items-center justify-center h-full">
             {/* Plant emoji */}
             <motion.span
-              className="text-3xl block mt-1"
+              className="text-3xl block -mt-2"
               animate={weather === 'windy' ? { rotate: [-5, 5, -5] } : { y: [0, -3, 0] }}
               transition={{ duration: weather === 'windy' ? 0.5 : 2, repeat: Infinity }}
             >
@@ -41,52 +46,54 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
             </motion.span>
 
             {/* Water indicator */}
-            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-background/60 rounded-full px-1 py-0.5">
+            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-full px-1 py-0.5" style={{ background: 'rgba(255,255,255,0.7)' }}>
               <Droplets size={8} className={plot.waterLevel > 30 ? 'text-sky' : 'text-destructive'} />
-              <span className="text-[7px] text-foreground font-medium">{Math.round(plot.waterLevel)}%</span>
+              <span className="text-[7px] font-medium" style={{ color: '#333' }}>{Math.round(plot.waterLevel)}%</span>
             </div>
             {plot.fertilized && (
               <span className="absolute top-1.5 left-1.5 text-[10px]">✨</span>
             )}
 
             {/* Growth bar */}
-            <div className="absolute bottom-10 left-2 right-2">
-              <div className="h-1.5 rounded-full bg-muted/60">
-                <div className="h-full rounded-full bg-leaf transition-all" style={{ width: `${plot.growthProgress}%` }} />
+            <div className="absolute bottom-14 left-2 right-2">
+              <div className="h-1.5 rounded-full" style={{ background: 'rgba(0,0,0,0.12)' }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${plot.growthProgress}%`, background: '#66bb6a' }} />
               </div>
             </div>
 
-            {/* Pot base */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[70%]">
-              <div className="h-1.5 rounded-t-sm bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700" />
+            {/* Pot base for planted */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%]">
+              <div className="h-2 rounded-t-sm" style={{ background: 'linear-gradient(to right, #a0522d, #cd853f, #a0522d)' }} />
+              <div className="h-2 mx-[8%]" style={{ background: 'linear-gradient(to bottom, #3e2723, #4e342e)' }} />
               <div
-                className="h-6 bg-gradient-to-b from-amber-600 to-amber-800 rounded-b-md"
-                style={{ clipPath: 'polygon(5% 0, 95% 0, 85% 100%, 15% 100%)' }}
+                className="h-8"
+                style={{ background: 'linear-gradient(to bottom, #a0522d, #6d3a1f)', clipPath: 'polygon(5% 0, 95% 0, 82% 100%, 18% 100%)' }}
               />
+              <div className="h-1.5 rounded-b-sm mx-[18%]" style={{ background: '#4a2510' }} />
             </div>
           </div>
         ) : (
-          /* Empty pot — elegant terracotta with soil */
+          /* Empty pot — warm earthy card */
           <div className="relative z-10 flex flex-col items-center justify-end h-full pb-0">
-            {/* Plus hint at top */}
-            <div className="absolute top-1/2 -translate-y-[70%] flex flex-col items-center gap-0.5 text-muted-foreground/50">
-              <Plus size={18} strokeWidth={1.5} />
-              <span className="text-[8px] font-medium">播种</span>
+            {/* Plus hint */}
+            <div className="absolute top-[25%] flex flex-col items-center gap-1">
+              <Plus size={24} strokeWidth={2} color="#8d7b5e" />
+              <span className="text-[10px] font-bold" style={{ color: '#8d7b5e' }}>播种</span>
             </div>
 
             {/* Terracotta pot */}
-            <div className="w-[75%] mb-0">
+            <div className="w-[80%]">
               {/* Pot rim */}
-              <div className="h-2 rounded-t-md bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 shadow-sm" />
+              <div className="h-3 rounded-t-md" style={{ background: 'linear-gradient(to right, #a0522d, #cd853f, #a0522d)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               {/* Soil surface */}
-              <div className="h-2 bg-gradient-to-b from-amber-900/60 to-amber-800/40 mx-[6%]" />
+              <div className="h-3 mx-[6%]" style={{ background: 'linear-gradient(to bottom, #3e2723, #5d4037)' }} />
               {/* Pot body */}
               <div
-                className="h-8 bg-gradient-to-b from-amber-600 to-amber-800"
-                style={{ clipPath: 'polygon(5% 0, 95% 0, 82% 100%, 18% 100%)' }}
+                className="h-12"
+                style={{ background: 'linear-gradient(to bottom, #a0522d, #6d3a1f)', clipPath: 'polygon(5% 0, 95% 0, 80% 100%, 20% 100%)' }}
               />
               {/* Pot bottom */}
-              <div className="h-1 bg-amber-900 rounded-b-sm mx-[18%]" />
+              <div className="h-2 rounded-b-sm mx-[20%]" style={{ background: '#4a2510' }} />
             </div>
           </div>
         )}

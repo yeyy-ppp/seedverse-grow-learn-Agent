@@ -26,31 +26,14 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
     >
       <div
         onClick={onPlotClick}
-        className="card-nature rounded-2xl overflow-hidden cursor-pointer relative"
+        className="rounded-2xl overflow-hidden cursor-pointer relative bg-gradient-to-b from-card to-muted/30 border border-border/50 shadow-sm"
         style={{ aspectRatio: '1' }}
       >
-        {/* Soil background */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-earth-light/20 to-earth-light/40" />
-
-        {/* Realistic pot visual */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[75%]">
-          {/* Pot rim */}
-          <div className="h-2 rounded-t-sm bg-gradient-to-r from-[hsl(15,40%,55%)] via-[hsl(18,45%,60%)] to-[hsl(15,40%,55%)]" />
-          {/* Pot body - tapered trapezoid */}
-          <div
-            className="h-10 bg-gradient-to-b from-[hsl(18,42%,52%)] to-[hsl(15,35%,42%)]"
-            style={{ clipPath: 'polygon(8% 0, 92% 0, 82% 100%, 18% 100%)' }}
-          />
-          {/* Soil in pot */}
-          <div
-            className="absolute top-2 left-[12%] right-[12%] h-3 rounded-b-sm bg-gradient-to-b from-[hsl(25,30%,30%)] to-[hsl(25,25%,25%)]"
-          />
-        </div>
-
         {plot.plantId && visual ? (
-          <div className="relative z-10 flex flex-col items-center justify-center h-full pt-1">
+          <div className="relative z-10 flex flex-col items-center justify-center h-full">
+            {/* Plant emoji */}
             <motion.span
-              className="text-3xl block"
+              className="text-3xl block mt-1"
               animate={weather === 'windy' ? { rotate: [-5, 5, -5] } : { y: [0, -3, 0] }}
               transition={{ duration: weather === 'windy' ? 0.5 : 2, repeat: Infinity }}
             >
@@ -58,32 +41,58 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
             </motion.span>
 
             {/* Water indicator */}
-            <div className="absolute top-1 right-1 flex items-center gap-0.5">
+            <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-background/60 rounded-full px-1 py-0.5">
               <Droplets size={8} className={plot.waterLevel > 30 ? 'text-sky' : 'text-destructive'} />
-              <span className="text-[7px] text-foreground">{Math.round(plot.waterLevel)}%</span>
+              <span className="text-[7px] text-foreground font-medium">{Math.round(plot.waterLevel)}%</span>
             </div>
             {plot.fertilized && (
-              <span className="absolute top-1 left-1 text-[8px]">✨</span>
+              <span className="absolute top-1.5 left-1.5 text-[10px]">✨</span>
             )}
 
             {/* Growth bar */}
-            <div className="absolute bottom-12 left-2 right-2">
-              <div className="h-1.5 rounded-full bg-muted/50">
+            <div className="absolute bottom-10 left-2 right-2">
+              <div className="h-1.5 rounded-full bg-muted/60">
                 <div className="h-full rounded-full bg-leaf transition-all" style={{ width: `${plot.growthProgress}%` }} />
               </div>
             </div>
+
+            {/* Pot base */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[70%]">
+              <div className="h-1.5 rounded-t-sm bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700" />
+              <div
+                className="h-6 bg-gradient-to-b from-amber-600 to-amber-800 rounded-b-md"
+                style={{ clipPath: 'polygon(5% 0, 95% 0, 85% 100%, 15% 100%)' }}
+              />
+            </div>
           </div>
         ) : (
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="flex flex-col items-center gap-1 text-muted-foreground">
-              <Plus size={20} />
-              <span className="text-[9px] font-bold">播种</span>
+          /* Empty pot — elegant terracotta with soil */
+          <div className="relative z-10 flex flex-col items-center justify-end h-full pb-0">
+            {/* Plus hint at top */}
+            <div className="absolute top-1/2 -translate-y-[70%] flex flex-col items-center gap-0.5 text-muted-foreground/50">
+              <Plus size={18} strokeWidth={1.5} />
+              <span className="text-[8px] font-medium">播种</span>
+            </div>
+
+            {/* Terracotta pot */}
+            <div className="w-[75%] mb-0">
+              {/* Pot rim */}
+              <div className="h-2 rounded-t-md bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 shadow-sm" />
+              {/* Soil surface */}
+              <div className="h-2 bg-gradient-to-b from-amber-900/60 to-amber-800/40 mx-[6%]" />
+              {/* Pot body */}
+              <div
+                className="h-8 bg-gradient-to-b from-amber-600 to-amber-800"
+                style={{ clipPath: 'polygon(5% 0, 95% 0, 82% 100%, 18% 100%)' }}
+              />
+              {/* Pot bottom */}
+              <div className="h-1 bg-amber-900 rounded-b-sm mx-[18%]" />
             </div>
           </div>
         )}
       </div>
 
-      {/* Plant name label outside pot */}
+      {/* Plant name label */}
       {plot.plantId && visual && (
         <motion.div
           initial={{ opacity: 0, y: -4 }}

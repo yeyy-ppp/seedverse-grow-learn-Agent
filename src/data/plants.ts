@@ -10,6 +10,13 @@ export interface PlantMorphology {
   growthData: string;   // 生长数据
 }
 
+export interface GrowthCycle {
+  leafMonths: number[];      // 长叶月份
+  flowerMonths: number[];    // 开花月份
+  fruitMonths: number[];     // 结果月份
+  dormantMonths: number[];   // 休眠月份
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -27,6 +34,7 @@ export interface Plant {
   scene: { name: string; description: string };
   stages: { name: string; emoji: string; description: string; unlockContent: string }[];
   morphology: PlantMorphology;
+  growthCycle: GrowthCycle;
 }
 
 export interface SeedCard {

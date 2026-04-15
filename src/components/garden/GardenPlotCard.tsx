@@ -26,8 +26,8 @@ const GardenPlotCard = ({ plot, visual, weather, onPlotClick, onWater, onFertili
     >
       <div
         onClick={onPlotClick}
-        className="rounded-2xl overflow-hidden cursor-pointer relative border border-border shadow-md"
-        style={{ aspectRatio: '1', background: 'linear-gradient(to bottom, hsl(var(--card)), hsl(var(--muted)))' }}
+        className="rounded-2xl overflow-hidden cursor-pointer relative shadow-lg"
+        style={{ aspectRatio: '1', background: 'linear-gradient(to bottom, #e8f5e9, #c8e6c9)', border: '2px solid #a5d6a7' }}
       >
         {plot.plantId && visual ? (
           <div className="relative z-10 flex flex-col items-center justify-center h-full">

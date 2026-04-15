@@ -10,6 +10,13 @@ export interface PlantMorphology {
   growthData: string;   // 生长数据
 }
 
+export interface GrowthCycle {
+  leafMonths: number[];      // 长叶月份
+  flowerMonths: number[];    // 开花月份
+  fruitMonths: number[];     // 结果月份
+  dormantMonths: number[];   // 休眠月份
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -27,6 +34,7 @@ export interface Plant {
   scene: { name: string; description: string };
   stages: { name: string; emoji: string; description: string; unlockContent: string }[];
   morphology: PlantMorphology;
+  growthCycle: GrowthCycle;
 }
 
 export interface SeedCard {
@@ -124,6 +132,12 @@ export const plants: Plant[] = [
       leafShape: '心形/卵形',
       growthData: '生长周期70-120天，株高1-3.5m，花期7-9月，适温20-30℃',
     },
+    growthCycle: {
+      leafMonths: [3, 4, 5],
+      flowerMonths: [7, 8, 9],
+      fruitMonths: [9, 10],
+      dormantMonths: [11, 12, 1, 2],
+    },
   },
   {
     id: 'lotus',
@@ -161,6 +175,12 @@ export const plants: Plant[] = [
       leaf: '圆形盾状叶，直径25-90厘米，表面有蜡质层，具有自清洁效应',
       leafShape: '盾形/圆形',
       growthData: '生长周期全年，花期6-9月，适温22-32℃，水深30-120cm',
+    },
+    growthCycle: {
+      leafMonths: [4, 5, 6],
+      flowerMonths: [6, 7, 8, 9],
+      fruitMonths: [8, 9, 10],
+      dormantMonths: [11, 12, 1, 2, 3],
     },
   },
   {
@@ -200,6 +220,12 @@ export const plants: Plant[] = [
       leafShape: '卵形/椭圆形',
       growthData: '树高4-10m，花期12-3月，果期5-6月，寿命可达数百年',
     },
+    growthCycle: {
+      leafMonths: [3, 4, 5],
+      flowerMonths: [12, 1, 2, 3],
+      fruitMonths: [4, 5, 6],
+      dormantMonths: [7, 8, 9, 10],
+    },
   },
   {
     id: 'rose',
@@ -237,6 +263,12 @@ export const plants: Plant[] = [
       leaf: '互生，奇数羽状复叶，小叶3-5枚，椭圆形，叶缘有锐锯齿，叶面光亮',
       leafShape: '羽状复叶/椭圆形',
       growthData: '株高1-2m，花期全年（盛花4-10月），适温15-28℃，寿命数十年',
+    },
+    growthCycle: {
+      leafMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      flowerMonths: [4, 5, 6, 7, 8, 9, 10],
+      fruitMonths: [6, 7, 8, 9, 10, 11],
+      dormantMonths: [],
     },
   },
   {
@@ -276,6 +308,12 @@ export const plants: Plant[] = [
       leafShape: '线形/带形',
       growthData: '株高30-80cm，花期因种而异（春兰2-3月，建兰7-10月），适温15-25℃',
     },
+    growthCycle: {
+      leafMonths: [3, 4, 5, 6, 7, 8, 9, 10],
+      flowerMonths: [2, 3, 7, 8, 9, 10],
+      fruitMonths: [10, 11],
+      dormantMonths: [12, 1],
+    },
   },
   {
     id: 'pine',
@@ -314,6 +352,12 @@ export const plants: Plant[] = [
       leafShape: '针形',
       growthData: '树高可达45m，寿命可超千年，年生长30-60cm，四季常绿',
     },
+    growthCycle: {
+      leafMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      flowerMonths: [4, 5],
+      fruitMonths: [9, 10, 11],
+      dormantMonths: [],
+    },
   },
   {
     id: 'chrysanthemum',
@@ -351,6 +395,12 @@ export const plants: Plant[] = [
       leaf: '互生，卵形至披针形，叶缘有粗锯齿或深裂，叶背灰白色被毛',
       leafShape: '卵形/掌状深裂',
       growthData: '株高30-150cm，花期9-11月，适温18-22℃，短日照开花',
+    },
+    growthCycle: {
+      leafMonths: [3, 4, 5, 6, 7, 8],
+      flowerMonths: [9, 10, 11],
+      fruitMonths: [11, 12],
+      dormantMonths: [12, 1, 2],
     },
   },
 ];

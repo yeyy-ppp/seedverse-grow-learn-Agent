@@ -142,8 +142,8 @@ const GardenSimulation = () => {
         if (season === 'winter') growthRate *= 0.3;
 
         // Real growth cycle modifier
-        if (plant?.growthCycle) {
-          const { leafMonths, flowerMonths, dormantMonths } = plant.growthCycle;
+        if (plant && 'growthCycle' in plant && plant.growthCycle) {
+          const { leafMonths, flowerMonths, dormantMonths } = plant.growthCycle as import('@/data/plants').GrowthCycle;
           if (dormantMonths.includes(currentMonth)) {
             growthRate *= 0.05; // Nearly dormant
           } else if (flowerMonths.includes(currentMonth)) {

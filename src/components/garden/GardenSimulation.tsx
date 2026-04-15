@@ -117,12 +117,16 @@ const GardenSimulation = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Growth tick
+  // Growth tick — now considers plant's real growth cycle
   useEffect(() => {
+    const currentMonth = new Date().getMonth() + 1; // 1-12
     const interval = setInterval(() => {
       setGardenPlots(prev => prev.map(plot => {
         if (!plot.plantId) return plot;
+        const plant = getPlantById(plot.plantId);
         let growthRate = 0.5;
+
+        // Weather modifiers
         if (weather === 'sunny') growthRate = 1.0;
         if (weather === 'rainy' || weather === 'light_rain') growthRate = 0.8;
         if (weather === 'heavy_rain') growthRate = 0.6;
@@ -130,10 +134,25 @@ const GardenSimulation = () => {
         if (weather === 'snowy') growthRate = 0.1;
         if (weather === 'sleet') growthRate = 0.15;
         if (weather === 'foggy') growthRate = 0.4;
+
+        // Season modifiers
         if (season === 'spring') growthRate *= 1.2;
         if (season === 'summer') growthRate *= 1.0;
         if (season === 'autumn') growthRate *= 0.7;
         if (season === 'winter') growthRate *= 0.3;
+
+        // Real growth cycle modifier
+        if (plant?.growthCycle) {
+          const { leafMonths, flowerMonths, dormantMonths } = plant.growthCycle;
+          if (dormantMonths.includes(currentMonth)) {
+            growthRate *= 0.05; // Nearly dormant
+          } else if (flowerMonths.includes(currentMonth)) {
+            growthRate *= 1.5; // Bloom boost
+          } else if (leafMonths.includes(currentMonth)) {
+            growthRate *= 1.2; // Active growing
+          }
+        }
+
         if (plot.waterLevel > 30) growthRate *= 1.2;
         if (plot.waterLevel < 15) growthRate *= 0.3;
         if (plot.fertilized) growthRate *= 1.5;
@@ -146,7 +165,7 @@ const GardenSimulation = () => {
       }));
     }, 2000);
     return () => clearInterval(interval);
-  }, [weather, season, isNight, setGardenPlots]);
+  }, [weather, season, isNight, setGardenPlots, getPlantById]);
 
   // Sync growth to seed stages
   useEffect(() => {
